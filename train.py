@@ -81,14 +81,13 @@ if __name__ == "__main__":
     wandb.init(project="deepfake_detection")
 
     # Argument parsing
-    parser = argparse.ArgumentParser(description="Train the deepfake detection model")
-    parser.add_argument("--config", type=str, default="config/train.yaml",
-                        help="Path to the config file (default: config/train.yaml)")
-    parser.add_argument("--epochs", type=int, help="Number of training epochs (overrides config)")
-    parser.add_argument("--batch_size", type=int, help="Batch size for training (overrides config)")
-    parser.add_argument("--learning_rate", type=float, help="Learning rate for optimizer (overrides config)")
-    parser.add_argument("--real_dir", type=str, help="Directory for real images (overrides config)")
-    parser.add_argument("--fake_dir", type=str, help="Directory for fake images (overrides config)")
+    parser = argparse.ArgumentParser(description="멀티모달 딥페이크 탐지 모델 학습 스크립트")
+    parser.add_argument("--epochs", type=int, default=10, help="학습 반복 횟수 (기본값: 10)")
+    parser.add_argument("--batch_size", type=int, default=4, help="훈련 배치 크기 (기본값: 4)")
+    parser.add_argument("--learning_rate", type=float, default=0.001, help="학습률 (기본값: 0.001)")
+    parser.add_argument("--real_dir", type=str, default="./data/REAL", help="실제 이미지가 저장된 디렉토리 경로 (기본값: ./data/REAL)")
+    parser.add_argument("--fake_dir", type=str, default="./data/FAKE", help="가짜 이미지가 저장된 디렉토리 경로 (기본값: ./data/FAKE)")
+    parser.add_argument("--gpu", type=int, default=0, help="학습에 사용할 GPU ID (기본값: 0)")
     args = parser.parse_args()
 
     # Load configuration

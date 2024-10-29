@@ -170,13 +170,13 @@ def collate_fn(batch):
 # Main execution
 if __name__ == "__main__":
     # Argument parsing
-    parser = argparse.ArgumentParser(description="Train the multimodal deepfake detection model")
-    parser.add_argument("--epochs", type=int, default=10, help="Number of training epochs")
-    parser.add_argument("--batch_size", type=int, default=4, help="Batch size for training")
-    parser.add_argument("--learning_rate", type=float, default=0.001, help="Learning rate for the optimizer")
-    parser.add_argument("--real_dir", type=str, default="./data/REAL", help="Directory for real images")
-    parser.add_argument("--fake_dir", type=str, default="./data/FAKE", help="Directory for fake images")
-    parser.add_argument("--gpu", type=int, default=0, help="GPU ID to use for training")
+    parser = argparse.ArgumentParser(description="멀티모달 딥페이크 탐지 모델 학습 스크립트")
+    parser.add_argument("--epochs", type=int, default=10, help="학습 반복 횟수 (기본값: 10)")
+    parser.add_argument("--batch_size", type=int, default=4, help="훈련 배치 크기 (기본값: 4)")
+    parser.add_argument("--learning_rate", type=float, default=0.001, help="학습률 (기본값: 0.001)")
+    parser.add_argument("--real_dir", type=str, default="./data/REAL", help="실제 이미지가 저장된 디렉토리 경로 (기본값: ./data/REAL)")
+    parser.add_argument("--fake_dir", type=str, default="./data/FAKE", help="가짜 이미지가 저장된 디렉토리 경로 (기본값: ./data/FAKE)")
+    parser.add_argument("--gpu", type=int, default=0, help="학습에 사용할 GPU ID (기본값: 0)")
     args = parser.parse_args()
 
     # Check if the specified GPU ID is available
