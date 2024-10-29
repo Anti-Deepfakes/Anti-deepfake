@@ -3,7 +3,7 @@ import torch.optim as optim
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from data.deepfake_dataset import DeepfakeDataset
-from models.inception_resnet_v2 import get_model
+from models.inception_resnet_v2 import InceptionResNetV2
 from utils.logger import get_logger
 from torchvision import transforms
 import wandb
@@ -134,7 +134,7 @@ if __name__ == "__main__":
     else:
         logger.info("CUDA is available. Training on GPU.")
 
-    model = get_model().to(device)
+    model = InceptionResNetV2().to(device)
     print(f"Using device: {device}")
 
     criterion = nn.BCELoss()
