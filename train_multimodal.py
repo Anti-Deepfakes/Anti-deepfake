@@ -176,10 +176,15 @@ if __name__ == "__main__":
     parser.add_argument("--learning_rate", type=float, default=0.001, help="Learning rate for the optimizer")
     parser.add_argument("--real_dir", type=str, default="./data/REAL", help="Directory for real images")
     parser.add_argument("--fake_dir", type=str, default="./data/FAKE", help="Directory for fake images")
+    parser.add_argument("--gpu", type=int, default=0, help="GPU ID to use for training")
     args = parser.parse_args()
 
-    # Set up the device to use the first GPU
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    # Check if the specified GPU ID is available
+    if torch.cuda.is_available() and args.gpu < torch.cuda.device_count():
+        device = torch.device(f"cuda:{args.gpu}")
+    else:
+        device = torch.device("cpu")
+        print(f"Invalid GPU ID {args.gpu}. Falling back to CPU.")
     print(f"Using device: {device}")
 
     # Define transformations
