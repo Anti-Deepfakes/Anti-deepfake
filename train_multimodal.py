@@ -9,36 +9,10 @@ from torchvision import transforms
 from tqdm import tqdm
 import wandb
 import timm
-import dlib
+from utils.face_utils import extract_facial_regions
 
 # Initialize wandb
 wandb.init(project="deepfake_detection_multimodal")
-
-# dlib의 얼굴 랜드마크 모델 로드 (사전 학습된 모델 필요)
-detector = dlib.get_frontal_face_detector()
-predictor = dlib.shape_predictor("models/shape_predictor_68_face_landmarks.dat")  # 사전 학습된 모델 경로
-
-# 얼굴 부위 감지 및 분리 함수
-def extract_facial_regions(image):
-    gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-    faces = detector(gray)
-    if len(faces) == 0:
-        return None, None, None, image  # 얼굴이 감지되지 않은 경우 전체 얼굴 반환
-
-    # 첫 번째 얼굴 선택
-    face = faces[0]
-    landmarks = predictor(gray, face)
-
-    # 눈, 코, 입 좌표 추출
-    eye_region = image[landmarks.part(36).y:landmarks.part(45).y, landmarks.part(36).x:landmarks.part(45).x]
-    nose_region = image[landmarks.part(27).y:landmarks.part(35).y, landmarks.part(31).x:landmarks.part(35).x]
-    mouth_region = image[landmarks.part(48).y:landmarks.part(57).y, landmarks.part(48).x:landmarks.part(54).x]
-
-    # 만약 눈, 코, 입이 감지되지 않으면 전체 얼굴 반환
-    if eye_region.size == 0 or nose_region.size == 0 or mouth_region.size == 0:
-        return None, None, None, image
-
-    return eye_region, nose_region, mouth_region, None
 
 # Custom Dataset for loading images from folders
 class DeepfakeDataset(Dataset):
@@ -170,16 +144,21 @@ def collate_fn(batch):
 # Main execution
 if __name__ == "__main__":
     # Argument parsing
-    parser = argparse.ArgumentParser(description="Train the multimodal deepfake detection model")
-    parser.add_argument("--epochs", type=int, default=10, help="Number of training epochs")
-    parser.add_argument("--batch_size", type=int, default=4, help="Batch size for training")
-    parser.add_argument("--learning_rate", type=float, default=0.001, help="Learning rate for the optimizer")
-    parser.add_argument("--real_dir", type=str, default="./data/REAL", help="Directory for real images")
-    parser.add_argument("--fake_dir", type=str, default="./data/FAKE", help="Directory for fake images")
+    parser = argparse.ArgumentParser(description="멀티모달 딥페이크 탐지 모델 학습 스크립트")
+    parser.add_argument("--epochs", type=int, default=10, help="학습 반복 횟수 (기본값: 10)")
+    parser.add_argument("--batch_size", type=int, default=4, help="훈련 배치 크기 (기본값: 4)")
+    parser.add_argument("--learning_rate", type=float, default=0.001, help="학습률 (기본값: 0.001)")
+    parser.add_argument("--real_dir", type=str, default="./data/REAL", help="실제 이미지가 저장된 디렉토리 경로 (기본값: ./data/REAL)")
+    parser.add_argument("--fake_dir", type=str, default="./data/FAKE", help="가짜 이미지가 저장된 디렉토리 경로 (기본값: ./data/FAKE)")
+    parser.add_argument("--gpu", type=int, default=0, help="학습에 사용할 GPU ID (기본값: 0)")
     args = parser.parse_args()
 
-    # Set up the device to use the first GPU
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    # Check if the specified GPU ID is available
+    if torch.cuda.is_available() and args.gpu < torch.cuda.device_count():
+        device = torch.device(f"cuda:{args.gpu}")
+    else:
+        device = torch.device("cpu")
+        print(f"Invalid GPU ID {args.gpu}. Falling back to CPU.")
     print(f"Using device: {device}")
 
     # Define transformations

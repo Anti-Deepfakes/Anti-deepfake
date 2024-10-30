@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
-from basic_layers import Conv2dBnRelu
-from scaling_layer import ScalingLayer
+from models.layer.basic_layers import Conv2dBnRelu
+from models.layer.scaling_layer import ScalingLayer
 
 class InceptionResNetA(nn.Module):
     def __init__(self, scale=True):
