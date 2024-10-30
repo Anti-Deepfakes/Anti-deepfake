@@ -3,12 +3,12 @@ import torch.nn as nn
 import os
 
 # Import the custom layers from the models/layer directory
-from layer.stem import Stem
-from layer.inception_resnet_block import InceptionResNetA, InceptionResNetB, InceptionResNetC
-from layer.reduction_block import ReductionA, ReductionB
-from layer.scaling_layer import ScalingLayer
-from layer.final_block import FinalBlock
-from layer.basic_layers import Conv2dBnRelu
+from models.layer.stem import Stem
+from models.layer.inception_resnet_block import InceptionResNetA, InceptionResNetB, InceptionResNetC
+from models.layer.reduction_block import ReductionA, ReductionB
+from models.layer.scaling_layer import ScalingLayer
+from models.layer.final_block import FinalBlock
+from models.layer.basic_layers import Conv2dBnRelu
 
 class InceptionResNetV2(nn.Module):
     def __init__(self, num_classes=1000, dropout_rate=0.2, scale=True):
