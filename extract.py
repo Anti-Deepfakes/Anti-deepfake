@@ -35,7 +35,7 @@ def extract_image_from_video(args):
         os.makedirs(output_dir)
     # input_file이 존재하는지 확인
     if not os.path.exists(input_file):
-        raise InvalidPathError(f"'{input_file}' : 파일의 경로가 올바르지 않습니다.")
+        raise InvalidPathError(f"'{input_file}' : 입력 파일이 없거나, 경로가 올바르지 않습니다.")
     # 확장자가 동영상인지 확인
     if not input_file.endswith(('.mp4', '.avi', '.mov', '.mkv')):
         raise InvalidExtensionError(f"'{input_file}' : 올바른 확장자가 아닙니다.")

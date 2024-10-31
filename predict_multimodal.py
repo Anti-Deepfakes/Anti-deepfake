@@ -62,8 +62,6 @@ def predict(input_path, model_eye, model_nose, model_mouth, final_layer, device)
         real_prob = sum(pred[1] for pred in predictions) / len(predictions)
         fake_prob = 1 - real_prob
         return real_prob, fake_prob
-    else:
-        raise InvalidPathError(f"'{input_path}' : 경로가 올바르지 않습니다.")
 
 
 
