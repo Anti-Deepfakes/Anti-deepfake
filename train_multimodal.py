@@ -14,6 +14,32 @@ from utils.face_utils import extract_facial_regions
 # Initialize wandb
 wandb.init(project="deepfake_detection_multimodal")
 
+
+class EarlyStopping:
+    def __init__(self, patience=5, min_delta=0):
+        """
+        Args:
+            patience (int): 검증 손실이 개선되지 않아도 기다리는 epoch 수
+            min_delta (float): 개선으로 간주될 최소 변화량
+        """
+        self.patience = patience
+        self.min_delta = min_delta
+        self.counter = 0
+        self.best_loss = None
+        self.early_stop = False
+
+    def __call__(self, val_loss):
+        if self.best_loss is None:
+            self.best_loss = val_loss
+        elif val_loss < self.best_loss - self.min_delta:
+            self.best_loss = val_loss
+            self.counter = 0  # 개선되면 카운터 초기화
+        else:
+            self.counter += 1  # 개선되지 않으면 카운터 증가
+            if self.counter >= self.patience:
+                self.early_stop = True  # 조기 종료 조건 충족
+
+
 # Custom Dataset for loading images from folders
 class DeepfakeDataset(Dataset):
     def __init__(self, real_dir, fake_dir, transform=None):
@@ -63,6 +89,7 @@ class DeepfakeDataset(Dataset):
 
         return (eye, nose, mouth), label
 
+
 # 모델 정의 (눈, 코, 입 각각 적용)
 def get_multimodal_model():
     # 세 개의 InceptionResNetV2 모델 초기화
@@ -85,6 +112,7 @@ def get_multimodal_model():
 
     return model_eye, model_nose, model_mouth, final_layer
 
+
 # 멀티모달 예측 함수
 def multimodal_forward(eye, nose, mouth, model_eye, model_nose, model_mouth, final_layer):
     # 각 모델에 입력
@@ -98,6 +126,7 @@ def multimodal_forward(eye, nose, mouth, model_eye, model_nose, model_mouth, fin
     # 최종 분류
     output = final_layer(combined_features)
     return output
+
 
 # Training function
 def train_model(models, final_layer, criterion, optimizer, dataloader, device):
@@ -133,6 +162,7 @@ def train_model(models, final_layer, criterion, optimizer, dataloader, device):
     epoch_loss = running_loss / len(dataloader.dataset)
     return epoch_loss
 
+
 # collate_fn 정의
 def collate_fn(batch):
     # None 값을 필터링하여 유효한 데이터만 남기기
@@ -140,6 +170,59 @@ def collate_fn(batch):
     if len(batch) == 0:
         return None  # 모든 데이터가 None인 경우를 처리
     return default_collate(batch)
+
+
+# 검증 함수 추가
+def validate_model(model, criterion, val_loader, device):
+    model.eval()
+    running_loss = 0.0
+    with torch.no_grad():
+        for images, labels in val_loader:
+            if images is None or labels is None:
+                continue
+            eye, nose, mouth = images
+            eye = eye.to(device).float()
+            nose = nose.to(device).float()
+            mouth = mouth.to(device).float()
+            labels = labels.to(device).float().unsqueeze(1)
+
+            outputs = multimodal_forward(eye, nose, mouth, *model)
+            loss = criterion(outputs, labels)
+            running_loss += loss.item() * eye.size(0)
+
+    val_loss = running_loss / len(val_loader.dataset)
+    return val_loss
+
+
+# 모델 체크포인트 저장 함수
+def save_checkpoint(epoch, model_eye, model_nose, model_mouth, final_layer, checkpoint_dir="checkpoints", best=False,
+                    max_checkpoints=10):
+    os.makedirs(checkpoint_dir, exist_ok=True)
+    checkpoint = {
+        'epoch': epoch,
+        'model_eye_state_dict': model_eye.state_dict(),
+        'model_nose_state_dict': model_nose.state_dict(),
+        'model_mouth_state_dict': model_mouth.state_dict(),
+        'final_layer_state_dict': final_layer.state_dict()
+    }
+
+    # Save checkpoint
+    if best:
+        filename = "best_model.pth"
+    else:
+        filename = f"model_checkpoint_epoch_{epoch}.pth"
+    torch.save(checkpoint, os.path.join(checkpoint_dir, filename))
+    print(f"Checkpoint saved: {filename}")
+
+    # Delete old checkpoints if exceeding max_checkpoints
+    checkpoints = sorted(
+        [os.path.join(checkpoint_dir, f) for f in os.listdir(checkpoint_dir) if f.startswith("model_checkpoint")],
+        key=os.path.getctime
+    )
+    if len(checkpoints) > max_checkpoints:
+        os.remove(checkpoints[0])
+        print(f"Deleted old checkpoint: {checkpoints[0]}")
+
 
 # Main execution
 if __name__ == "__main__":
@@ -154,17 +237,14 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Check if the specified GPU ID is available
-    if torch.cuda.is_available() and args.gpu < torch.cuda.device_count():
-        device = torch.device(f"cuda:{args.gpu}")
-    else:
-        device = torch.device("cpu")
-        print(f"Invalid GPU ID {args.gpu}. Falling back to CPU.")
+    device = torch.device(
+        f"cuda:{args.gpu}" if torch.cuda.is_available() and args.gpu < torch.cuda.device_count() else "cpu")
     print(f"Using device: {device}")
 
     # Define transformations
     transform = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Resize((299, 299)),  # Resize to match InceptionResNetV2 input size
+        transforms.Resize((299, 299)),
         transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
     ])
 
@@ -188,18 +268,32 @@ if __name__ == "__main__":
                            list(model_mouth.parameters()) +
                            list(final_layer.parameters()), lr=args.learning_rate)
 
-    # Training loop
+    # EarlyStopping 초기화
+    early_stopping = EarlyStopping(patience=5, min_delta=0.001)
+    best_val_loss = float('inf')
+
+    # Training loop with validation and early stopping
     for epoch in range(args.epochs):
         train_loss = train_model(models, final_layer, criterion, optimizer, train_loader, device)
-        print(f"Epoch {epoch+1}/{args.epochs}, Loss: {train_loss:.4f}")
+        print(f"Epoch {epoch + 1}/{args.epochs}, Training Loss: {train_loss:.4f}")
         wandb.log({"epoch": epoch + 1, "train_loss_epoch": train_loss})
 
-    # Save the trained models
-    torch.save({
-        'model_eye_state_dict': model_eye.state_dict(),
-        'model_nose_state_dict': model_nose.state_dict(),
-        'model_mouth_state_dict': model_mouth.state_dict(),
-        'final_layer_state_dict': final_layer.state_dict()
-    }, "deepfake_detector_multimodal.pth")
+        # Validation and early stopping check
+        val_loss = validate_model((model_eye, model_nose, model_mouth, final_layer), criterion, val_loader, device)
+        print(f"Epoch {epoch + 1}/{args.epochs}, Validation Loss: {val_loss:.4f}")
+        wandb.log({"epoch": epoch + 1, "val_loss_epoch": val_loss})
+
+        # Save checkpoint every epoch
+        save_checkpoint(epoch + 1, model_eye, model_nose, model_mouth, final_layer)
+
+        # Check if the current model is the best
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
+            save_checkpoint(epoch + 1, model_eye, model_nose, model_mouth, final_layer, best=True)
+
+        early_stopping(val_loss)
+        if early_stopping.early_stop:
+            print("Early stopping triggered.")
+            break
 
     wandb.finish()
