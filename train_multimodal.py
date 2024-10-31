@@ -89,8 +89,7 @@ def get_multimodal_model():
         )
 
     final_layer = nn.Sequential(
-        nn.Linear(128 * 3, 1),
-        nn.Sigmoid()
+        nn.Linear(128 * 3, 1)
     )
 
     return model_eye, model_nose, model_mouth, final_layer
@@ -232,7 +231,7 @@ if __name__ == "__main__":
     models = (model_eye.to(device), model_nose.to(device), model_mouth.to(device))
     final_layer = final_layer.to(device)
 
-    criterion = nn.BCELoss()
+    criterion = nn.BCEWithLogitsLoss()
     optimizer = optim.Adam(list(model_eye.parameters()) + list(model_nose.parameters()) + list(model_mouth.parameters()) + list(final_layer.parameters()), lr=args.learning_rate)
 
     scaler = torch.cuda.amp.GradScaler()
