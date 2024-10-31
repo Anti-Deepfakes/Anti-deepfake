@@ -126,7 +126,7 @@ def train_model(models, final_layer, criterion, optimizer, scaler, dataloader, d
         labels = labels.to(device).float().unsqueeze(1)
 
         optimizer.zero_grad()
-        with torch.cuda.amp.autocast():
+        with torch.amp.autocast(device_type='cuda'):
             outputs = multimodal_forward(eye, nose, mouth, model_eye, model_nose, model_mouth, final_layer)
             loss = criterion(outputs, labels)
 
