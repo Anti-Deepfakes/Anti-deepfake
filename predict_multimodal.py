@@ -5,6 +5,8 @@ import torch
 import cv2
 from torchvision import transforms
 import timm
+
+from exception.exception import InvalidPathError, InvalidExtensionError
 from utils.face_utils import extract_facial_regions
 
 # 이미지 전처리
@@ -34,7 +36,36 @@ def load_multimodal_models(weights_path):
 
 
 # 예측 함수
-def predict(image_path, model_eye, model_nose, model_mouth, final_layer, device):
+def predict(input_path, model_eye, model_nose, model_mouth, final_layer, device):
+    if not os.path.exists(input_path):
+        raise InvalidPathError(f"'{input_path}' : 경로가 올바르지 않습니다.")
+
+    # case 1: 파일
+    if os.path.isfile(input_path):
+        # 파일이 특정 확장자가 아닐 때 오류 발생
+        if not input_path.endswith(('.jpg', '.jpeg', '.png')):
+            raise InvalidExtensionError(f"'{input_path}' : 적절한 파일 확장자가 아닙니다.")
+        # 이미지 확장자가 맞으면 detect 수행
+        return process_image(input_path, model_eye, model_nose, model_mouth, final_layer, device)
+    # case 2: 폴더
+    elif os.path.isdir(input_path):
+        # 동영상 프레임 이미지들에 대해 얼굴 부위 추출 및 예측 수행
+        predictions = []
+        for frame_file in sorted(os.listdir(input_path)):
+            if not frame_file.endswith(('.jpg', '.jpeg', '.png')):
+                raise InvalidExtensionError(f"'{frame_file}' : 적절한 파일 확장자가 아닙니다.")
+            frame_path = os.path.join(input_path, frame_file)
+            fake_prob, real_prob = process_image(frame_path, model_eye, model_nose, model_mouth,
+                                                 final_layer, device)
+            predictions.append((fake_prob, real_prob))
+
+        real_prob = sum(pred[1] for pred in predictions) / len(predictions)
+        fake_prob = 1 - real_prob
+        return real_prob, fake_prob
+
+
+
+def process_image(image_path, model_eye, model_nose, model_mouth, final_layer, device):
     # 이미지 로드 및 얼굴 부위 추출
     image = cv2.imread(image_path)
     if image is None:
@@ -72,7 +103,7 @@ def predict(image_path, model_eye, model_nose, model_mouth, final_layer, device)
 if __name__ == "__main__":
     # Argument parsing
     parser = argparse.ArgumentParser(description="딥페이크 탐지 모델 예측 스크립트")
-    parser.add_argument("--image_path", type=str, required=True, help="예측할 이미지의 경로")
+    parser.add_argument("--input_path", type=str, required=True, help="예측할 파일의 경로(ex. sample.jpg, data/input)")
     parser.add_argument("--weights_path", type=str, required=True, help="모델 가중치가 저장된 디렉토리 경로")
     parser.add_argument("--gpu", type=int, default=0, help="사용할 GPU ID (기본값: 0)")
     args = parser.parse_args()
@@ -88,5 +119,5 @@ if __name__ == "__main__":
         device), final_layer.to(device)
 
     # 예측 수행
-    fake_prob, real_prob = predict(args.image_path, model_eye, model_nose, model_mouth, final_layer, device)
+    fake_prob, real_prob = predict(args.input_path, model_eye, model_nose, model_mouth, final_layer, device)
     print(f"딥페이크 확률: {fake_prob * 100:.2f}%, 실제 확률: {real_prob * 100:.2f}%")
