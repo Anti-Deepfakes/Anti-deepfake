@@ -1,0 +1,11 @@
+services:
+  mmmm-react:
+    image: react-image:latest
+    container_name: react
+    environment:
+      TZ: "Asia/Seoul"
+    networks:
+      - app-network
+networks:
+  app-network:
+    external: true
