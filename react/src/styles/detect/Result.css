@@ -1,82 +1,73 @@
 /* src/styles/Result.css */
 .result-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    background-color: #f5f5f5;
-  }
-  
-  /* .navy-banner {
-    background-color: navy;
-    color: white;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    margin-bottom: 20px;
-  }
-   */
-  .result-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-  }
-  
-  .preview-wrapper {
-    position: relative; /* 부모를 relative로 설정 */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 500px;
-    height: 300px;
-  }
-  
-  .preview-img {
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 10px;
-    opacity: 0.5;
-  }
-  
-  .result-icon {
-    position: absolute; /* 아이콘을 미리보기와 겹침 */
-    top: 6;
-    left: 50;
-    width: auto;
-    height: 50%;
-    opacity: 0.6; /* 투명도 설정 */
-  }
-  
-  .home-button {
-    margin-top: 20px;
-    background-color: navy;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-bottom: 30px;
-  }
-  
-  .home-button:hover {
-    background-color: #00509e;
-  }
-  
-  .review-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    background-color: #f5f5f5;
-  }
-  
-  .random-value {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.result-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.preview-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 500px;
+  height: 300px;
+}
+
+.preview-img {
+  width: auto;
+  height: 300px;
+  border-radius: 10px;
+  opacity: 0.5;
+}
+
+.result-icon {
+  position: absolute; /* 아이콘을 미리보기와 겹침 */
+  top: 6;
+  left: 50;
+  width: auto;
+  height: 50%;
+  opacity: 0.6; /* 투명도 설정 */
+}
+
+.home-button {
+  margin-top: 20px;
+  background-color: navy;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 30px;
+}
+
+.home-button:hover {
+  background-color: #00509e;
+}
+
+.review-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.result-box {
+  text-align: center;
+  /* margin-bottom: 20px; */
+}
+.error-text {
+  color: red;
+  font-weight: bold;
+}
