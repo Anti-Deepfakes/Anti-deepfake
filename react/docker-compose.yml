@@ -1,9 +1,7 @@
 services:
-  mmmm-react-blue:
+  mmmm-react:
     image: react-image:latest
     container_name: react
-    ports:
-      - "3000:80"
     environment:
       TZ: "Asia/Seoul"
     networks:
