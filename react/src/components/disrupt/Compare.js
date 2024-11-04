@@ -10,7 +10,7 @@ function Compare() {
             <button onClick={() => navigate('/')} className="home-button">
                 홈으로 돌아가기
             </button>
-            <div>원본 이미지</div>
+            <div>[ 원본 이미지 ]</div>
           <div className="image-row">
             <img src={preview} alt="Input Face 1" className="face-image" />
             <div className="arrow">→</div>
@@ -18,7 +18,7 @@ function Compare() {
             <div className="arrow">→</div>
             <img src={preview} alt="Output Face 1" className="face-image" />
           </div>
-          <div>노이즈 삽입 이미지</div>
+          <div>[ 노이즈 삽입 이미지 ]</div>
           <div className="image-row">
             <img src={preview} alt="Input Face 2" className="face-image" />
             <div className="arrow">→</div>

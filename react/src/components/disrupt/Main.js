@@ -34,14 +34,12 @@ function Main() {
       alert('이미지를 업로드해주세요!');
       return;
     }
-
     setLoading(true); // 요청 시작
     try {
       // TODO [강윤서] : 노이즈 삽입 api 연결
-      // const response = await axios.get('https://www.naver.com');
-      // console.log('네이버 응답:', response.data);
+
     } catch (error) {
-      // console.error('네이버 요청 중 오류 발생:', error);
+      console.error(error);
     } finally {
       setLoading(false); // 요청 종료
       navigate('/disrupt/compare', { state: { preview } });
@@ -50,7 +48,7 @@ function Main() {
 
   return (
     <div className="main-container">
-      <div className="navy-banner">
+      <div className="title">
         <h2>사진을 업로드해주세요.</h2>
       </div>
 
@@ -69,10 +67,13 @@ function Main() {
             <img src={preview} alt="미리보기" />
           </div>
         )}
+        {loading && (
+          <img src="/loading.gif" alt="로딩중" className="result-icon" />
+        )}
       </div>
 
       <button className="judge-button" onClick={handleJudge} disabled={loading}>
-        {loading ? '요청 중...' : '판단하기'}
+        {loading ? '요청 중...' : '삽입하기'}
       </button>
     </div>
   );
