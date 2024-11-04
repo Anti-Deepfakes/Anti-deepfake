@@ -1,7 +1,5 @@
-// src/components/Predict.js
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import '../../styles/detect/Predict.css';
 
 function Predict() {
@@ -10,21 +8,25 @@ function Predict() {
   const [selectedOption, setSelectedOption] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      const response = await axios.get('https://jsonplaceholder.typicode.com/todos/1');
-      console.log('응답 데이터:', response.data);
-      navigate('/detect/result', { state: { result: response.data, preview } }); // 응답과 미리보기 이미지 전달
-    } catch (error) {
-      console.error('오류 발생:', error);
-      alert('오류가 발생했습니다. 나중에 다시 시도해주세요.');
+
+    // 선택되지 않았을 경우 경고 메시지 표시
+    if (selectedOption === '') {
+      alert('옵션을 선택해주세요.');
+      return;
     }
+
+    // 선택된 값을 boolean으로 변환
+    const isFake = selectedOption === 'yes';
+
+    // 페이지 이동과 데이터 전달
+    navigate('/detect/result', { state: { preview, isFake } });
   };
 
   return (
     <div className="review-container">
-      <div className="navy-banner">
+      <div className="title">
         <h2>해당 영상은 딥페이크 제작물 같나요?</h2>
       </div>
 
