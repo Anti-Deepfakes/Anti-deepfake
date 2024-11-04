@@ -28,7 +28,10 @@ function Result() {
         setIcon('/check.png'); 
       }
     }
-  }, [result]); // result 값이 바뀔 때만 실행
+    if (error) {
+      setIcon(null);
+    }
+  }, [result, loading, error]); // result 값이 바뀔 때만 실행
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -64,7 +67,6 @@ function Result() {
           )}
         </div>
         {/* 상태에 따라 내용 표시 */}
-        {/* {loading && <p>처리 중입니다...</p>} */}
         {error && <p className="error-text">{error}</p>}
         {result && result.result && (
           <div className="result-box">
@@ -72,8 +74,8 @@ function Result() {
           </div>
         )}
       </div>
-
-      <div className="review-content">
+      {result && (
+        <div className="review-content">
         <form onSubmit={handleSubmit} className="review-form">
           <div className="radio-group">
             <label>
@@ -98,6 +100,7 @@ function Result() {
           <button type="submit" className="submit-button">제출</button>
         </form>
       </div>
+    )}
     </div>
   );
 }
