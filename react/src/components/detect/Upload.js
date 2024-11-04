@@ -45,9 +45,21 @@ function Upload() {
 
     dispatch({ type: 'REQUEST_START' }); // 로딩 상태 설정
     const formData = new FormData();
-    formData.append('file', file);
-
-    axios.post('https://truthguard.site/model/photo/detection', formData, {
+    formData.append('image', file);
+    // axios.post('https://truthguard.site/model/photo/detection', formData, {
+    //   headers: {
+    //     'Content-Type': 'multipart/form-data',
+    //   },
+    // })
+    //   .then((response) => {
+    //     dispatch({ type: 'REQUEST_SUCCESS', payload: response.data });
+    //     console.log(response)
+    //   })
+    //   .catch((error) => {
+    //     console.error(error);
+    //     dispatch({ type: 'REQUEST_ERROR', payload: '결과를 가져오는 데 실패했습니다.' });
+    //   });
+    axios.post('https://truthguard.site/api/photos/detection', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

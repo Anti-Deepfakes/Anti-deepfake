@@ -1,4 +1,3 @@
-// src/components/Result.js
 import React, { useEffect, useState } from 'react';
 import { useResult } from '../../context/ResultContext';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -9,7 +8,7 @@ function Result() {
   const location = useLocation();
   const navigate = useNavigate();
   const [selectedOption, setSelectedOption] = useState('');
-  const { preview } = location.state || {};
+  const { preview, isFake } = location.state || {};
   const [icon, setIcon] = useState('');
 
   // 탐지 api 요청 상태
@@ -20,9 +19,9 @@ function Result() {
     if (loading) {
       setIcon('/loading.gif');
     }
-    if (result && result.result) {
-      console.log('확률:', result.result);
-      if (result.result > 50) { // 딥페이크 영상물
+    if (result && result.deepfakeProbability) {
+      console.log('확률:', result.deepfakeProbability);
+      if (result.deepfakeProbability > 50) { // 딥페이크 영상물
         setIcon('/warning.png');
       } else { // 원본
         setIcon('/check.png'); 
@@ -36,7 +35,29 @@ function Result() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // TODO 피드백 post api 만들기
+      // 선택되지 않았을 경우 경고 메시지 표시
+      if (selectedOption === '') {
+        alert('옵션을 선택해주세요.');
+        return;
+      }
+
+      // JSON 객체 생성
+      const requestBody = {
+        feedbackId: result.feedbackId,
+        userPredict: isFake ? 1 : 0,
+        userLabel: selectedOption === "yes" ? 1 : 0
+      };
+
+      // PUT 요청 보내기
+      await axios.put("https://truthguard.site/api/photos/feedback", requestBody, {
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      alert('피드백이 성공적으로 제출되었습니다.');
+      // navigate('/'); // 제출 후 홈으로 이동
+
     } catch (error) {
       console.error('오류 발생:', error);
       alert('오류가 발생했습니다. 나중에 다시 시도해주세요.');
@@ -68,9 +89,9 @@ function Result() {
         </div>
         {/* 상태에 따라 내용 표시 */}
         {error && <p className="error-text">{error}</p>}
-        {result && result.result && (
+        {result && result.deepfakeProbability && (
           <div className="result-box">
-            <p>해당 영상물은 {result.result}% 확률로 딥페이크 영상물입니다.</p>
+            <p>해당 영상물은 {result.deepfakeProbability}% 확률로 딥페이크 영상물입니다.</p>
           </div>
         )}
       </div>
