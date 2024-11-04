@@ -13,9 +13,9 @@ function Predict() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.get('https://jsonplaceholder.typicode.com/todos/1');
-      console.log('응답 데이터:', response.data);
-      navigate('/detect/result', { state: { result: response.data, preview } }); // 응답과 미리보기 이미지 전달
+      // const response = await axios.get('https://jsonplaceholder.typicode.com/todos/1');
+      // console.log('응답 데이터:', response.data);
+      navigate('/detect/result', { state: { preview } }); // 미리보기 이미지 전달
     } catch (error) {
       console.error('오류 발생:', error);
       alert('오류가 발생했습니다. 나중에 다시 시도해주세요.');
@@ -24,7 +24,7 @@ function Predict() {
 
   return (
     <div className="review-container">
-      <div className="navy-banner">
+      <div className="title">
         <h2>해당 영상은 딥페이크 제작물 같나요?</h2>
       </div>
 
