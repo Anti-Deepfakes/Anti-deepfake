@@ -1,0 +1,8 @@
+.result-icon {
+    position: absolute; /* 아이콘을 미리보기와 겹침 */
+    top: 6;
+    left: 50;
+    width: auto;
+    height: 50%;
+    opacity: 0.6; /* 투명도 설정 */
+  }
