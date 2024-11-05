@@ -106,7 +106,7 @@ function Result() {
                 checked={selectedOption === 'yes'}
                 onChange={() => setSelectedOption('yes')}
               />
-              맞다
+              신뢰합니다
             </label>
             <label>
               <input
@@ -115,7 +115,7 @@ function Result() {
                 checked={selectedOption === 'no'}
                 onChange={() => setSelectedOption('no')}
               />
-              아니다
+              신뢰하지 않습니다
             </label>
           </div>
           <button type="submit" className="submit-button">제출</button>
