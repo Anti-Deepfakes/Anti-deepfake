@@ -54,7 +54,7 @@ function Upload() {
     })
       .then((response) => {
         dispatch({ type: 'REQUEST_SUCCESS', payload: response.data });
-        console.log(response);
+        // console.log(response);
       })
       .catch((error) => {
         console.error(error);
