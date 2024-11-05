@@ -95,7 +95,10 @@ function Compare() {
         {originalLoading ? (
           <img src="/loading.gif" alt="Loading" className="face-image" />
         ) : originalError ? (
-          <p className="error-message">{originalError}</p>
+          <div>
+            <p className="error-message">{originalError}</p>
+            <img src="/block.png" alt="오류" className="block-image" />
+          </div>
         ) : (
           originalResult && <img src={`data:image/jpeg;base64,${originalResult}`} alt="Output Face 1" className="face-image" />
         )}
@@ -110,7 +113,10 @@ function Compare() {
         {disruptedLoading ? (
           <img src="/loading.gif" alt="Loading" className="face-image" />
         ) : disruptedError ? (
-          <p className="error-message">{disruptedError}</p>
+          <div>
+            <p className="error-message">{disruptedError}</p>
+            <img src="/block.png" alt="오류" className="block-image" />
+          </div>
         ) : (
           disruptedResult && <img src={`data:image/jpeg;base64,${disruptedResult}`} alt="Output Face 2" className="face-image" />
         )}
