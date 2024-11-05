@@ -51,7 +51,7 @@ function Main() {
           'Content-Type': "multipart/form-data",
         }
       });
-      console.log(response);
+      // console.log(response);
       navigate('/disrupt/compare', { state: { preview, disruptedImage: response.data.data } });
     } catch (error) {
       console.error(error);
