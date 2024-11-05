@@ -55,7 +55,6 @@ function Compare() {
           }
         });
         setDisruptedResult(disruptedResponse.data.data);
-  
       } catch (error) {
         console.error("Error fetching disrupted data:", error);
         setDisruptedError(error.response?.data?.detail || "An error occurred");

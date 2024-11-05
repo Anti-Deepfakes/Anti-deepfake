@@ -63,6 +63,7 @@
   width: auto; /* 비율을 유지하며 width는 자동 조정 */
   object-fit: contain; /* 이미지가 잘리지 않고 비율 유지 */
   border-radius: 10px;
+  margin-bottom: 0px;
 }
 
 .judge-button {

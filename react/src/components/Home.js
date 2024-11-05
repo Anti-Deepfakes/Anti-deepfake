@@ -18,7 +18,7 @@ function Home() {
             <p>
             <span class="highlight">TruthGuard</span>는 딥페이크 기술의 악용을 방지하고 <br/>진실성을 보호하는 AI 기반 서비스입니다. </p>
             <br/>
-            <p><span class="highlight">생성 방해</span> 기능은 딥페이크 생성 모델의 인식을 방해하는 노이즈를 삽입하여<br/>악의적 활용을 막습니다. </p>
+            <p><span class="highlight">생성 방해</span> 기능은 딥페이크 생성 모델의 인식을 방해하는 노이즈를 삽입하여 <br/>악의적 활용을 막습니다. </p>
             <br/>
             <p>또한, <span class="highlight">탐지</span> 기능은 업로드된 콘텐츠가 딥페이크인지 여부를 판별하여 <br/>신뢰할 수 있는 정보 제공과 개인정보 보호를 지원합니다.</p>
             <div className="buttons">
