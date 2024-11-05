@@ -90,7 +90,7 @@ function Compare() {
         <div className="model-block">딥페이크 생성 모델</div>
         <div className="arrow">→</div>
         {originalLoading ? (
-          <img src="/loading.gif" alt="Loading" className="result-icon" />
+          <img src="/loading.gif" alt="Loading" className="face-image" />
         ) : (
           originalResult && <img src={`data:image/jpeg;base64,${originalResult}`} alt="Output Face 1" className="face-image" />
         )}
@@ -103,7 +103,7 @@ function Compare() {
         <div className="model-block">딥페이크 생성 모델</div>
         <div className="arrow">→</div>
         {disruptedLoading ? (
-          <img src="/loading.gif" alt="Loading" className="result-icon" />
+          <img src="/loading.gif" alt="Loading" className="face-image" />
         ) : (
           disruptedResult && <img src={`data:image/jpeg;base64,${disruptedResult}`} alt="Output Face 2" className="face-image" />
         )}

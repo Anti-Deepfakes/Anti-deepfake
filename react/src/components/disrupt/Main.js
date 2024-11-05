@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-
+import "../../styles/disrupt/Main.css";
 
 function Main() {
   const [preview, setPreview] = useState(null);
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false); // 요청 상태 관리
   const navigate = useNavigate();
+  const previewRef = useRef(null); // 미리보기 이미지의 참조 생성
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -76,12 +77,24 @@ function Main() {
         </div>
 
         {preview && (
-          <div className="preview-box">
-            <img src={preview} alt="미리보기" />
+          <div className="preview-box" style={{ position: 'relative' }}>
+            {loading && (
+              <img
+                src="/loading.gif"
+                alt="로딩중"
+                className="loading-icon"
+                style={{
+                  height: previewRef.current ? previewRef.current.height : '50px',
+                }}
+              />
+            )}
+            <img
+              src={preview}
+              alt="미리보기"
+              ref={previewRef} // 미리보기 이미지에 ref 연결
+              className="preview-img"
+            />
           </div>
-        )}
-        {loading && (
-          <img src="/loading.gif" alt="로딩중" className="result-icon" />
         )}
       </div>
 

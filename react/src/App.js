@@ -16,7 +16,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />
-
+          
           <Route path="/disrupt/upload" element={<Main />} />
           <Route path="/disrupt/compare" element={<Compare />} />
 
