@@ -13,12 +13,14 @@ function Home() {
         <div className='content'>
           <div className="navy-banner">
             
-            <p className="subtitle">“가짜가 아닌 진짜를 지키다”</p>
+            <div className="subtitle">“가짜가 아닌 진짜를 지키다”</div>
             <br />
             <p>
-            <span class="highlight">TruthGuard</span>는 딥페이크 기술의 악용을 방지하고 진실성을 보호하는 AI 기반 서비스입니다. </p>
-            <p><span class="highlight">생성 방해</span> 기능은 얼굴 이미지를 분석하여 딥페이크 생성 모델의 인식을 방해하는 노이즈를 삽입하여 악의적 활용을 막습니다. </p>
-            <p>또한, <span class="highlight">탐지</span> 기능은 업로드된 콘텐츠가 딥페이크인지 여부를 판별해 신뢰할 수 있는 정보 제공과 개인정보 보호를 지원합니다.</p>
+            <span class="highlight">TruthGuard</span>는 딥페이크 기술의 악용을 방지하고 <br/>진실성을 보호하는 AI 기반 서비스입니다. </p>
+            <br/>
+            <p><span class="highlight">생성 방해</span> 기능은 딥페이크 생성 모델의 인식을 방해하는 노이즈를 삽입하여<br/>악의적 활용을 막습니다. </p>
+            <br/>
+            <p>또한, <span class="highlight">탐지</span> 기능은 업로드된 콘텐츠가 딥페이크인지 여부를 판별하여 <br/>신뢰할 수 있는 정보 제공과 개인정보 보호를 지원합니다.</p>
             <div className="buttons">
               <button onClick={() => navigate('/disrupt/upload')}>생성 방해</button>
               <button onClick={() => navigate('/detect/upload')}>탐지</button>
@@ -40,7 +42,7 @@ function Home() {
         </div>
       </div> */}
       <div className='footer'>
-      <a href="https://www.naver.com">
+      <a href="/">
           <img src="/chrome.png" alt="Chrome Extension" className="chrome-extension-logo" />
         </a>
         <p>사용자는 크롬 익스텐션을 통해 간편하게 사진을 업로드하고, 보호된 이미지를 다운로드할 수 있습니다. </p>

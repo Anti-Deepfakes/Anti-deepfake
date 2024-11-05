@@ -5,53 +5,6 @@
   font-weight: 400;
   font-style: normal;
 }
-/*
-.content-wrapper {
-  display: flex;
-  width: 100%;
-  transition: transform 0.5s ease-in-out;
-}
-
-.content {
-  width: 100%;
-  flex: 0 0 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  height: 100%;
-  position: relative;
-}
-h2 {
-  text-align: center;
-  font-size: 32px;
-}
-.navy-banner p {
-  margin: 0;
-  font-size: 20px;
-  font-family: 'Pretendard-Regular';
-}
-
-
-/* .buttons {
-  display: flex;
-  gap: 10px;
-  margin-top: 20px;
-} */
-/* 
-button {
-  background-color: white;
-  color: var(--primary-color);
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-button:hover {
-  background-color: #00509e;
-} */
 
 h2 {
   text-align: center;
@@ -85,10 +38,10 @@ h2 {
 .subtitle {
   text-decoration-line: underline;
   text-decoration-style: double;
-  font-size: 22px;
+  font-size: 24px;
   color: #ffdd57; /* 서브타이틀 색상 강조 */
   font-weight: 600;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 /* 일반 텍스트 내 주요 키워드 강조 */
@@ -102,7 +55,6 @@ h2 {
 .navy-banner p span.highlight {
   color: #ffd700; /* 키워드 강조 색상 */
   font-weight: bold;
-  /* background-color: rgba(255, 215, 0, 0.2);  */
   padding: 2px 4px;
   border-radius: 4px;
 }
@@ -139,11 +91,11 @@ button:hover {
   background-color: white;
   border-radius: 10px;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
-  padding: 50px;
+  padding: 30px;
 }
 
 .navy-banner {
-  margin-bottom: 30px;
+  margin-bottom: 10px;
   background-color: var(--primary-color);
   color: var(--text-color);
   border-radius: 15px;
