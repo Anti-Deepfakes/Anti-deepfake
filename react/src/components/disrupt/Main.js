@@ -45,7 +45,7 @@ function Main() {
     try {
       const formData = new FormData();
       formData.append('image', file);
-      const response = await axios.post("http://133.186.146.52:8001/model/disrupt/generate", formData, {
+      const response = await axios.post("https://truthguard.site/disrupt/disrupt/generate", formData, {
         headers: {
           'Content-Type': "multipart/form-data",
         }
