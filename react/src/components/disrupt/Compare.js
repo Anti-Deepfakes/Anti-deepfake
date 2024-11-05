@@ -46,7 +46,7 @@ function Compare() {
         const disruptedFile = base64ToFile(`data:image/jpeg;base64,${disruptedImage}`, 'disrupted.jpg');
         const disruptedFormData = new FormData();
         disruptedFormData.append('image', disruptedFile);
-        const disruptedResponse = await axios.post("http://133.186.146.52:8001/model/deepfake/generate", disruptedFormData, {
+        const disruptedResponse = await axios.post("https://truthguard.site/disrupt/deepfake/generate", disruptedFormData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           }
