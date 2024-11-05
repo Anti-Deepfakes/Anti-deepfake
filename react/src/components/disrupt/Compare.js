@@ -15,6 +15,9 @@ function Compare() {
   const [originalResult, setOriginalResult] = useState(null);
   const [disruptedResult, setDisruptedResult] = useState(null);
 
+  const [originalError, setOriginalError] = useState(null);
+  const [disruptedError, setDisruptedError] = useState(null);
+  
   useEffect(() => {
     const fetchOriginalData = async () => {
       try {
@@ -30,9 +33,9 @@ function Compare() {
           }
         });
         setOriginalResult(originalResponse.data.data);
-  
       } catch (error) {
         console.error("Error fetching original data:", error);
+        setOriginalError(error.response?.data?.detail || "An error occurred");
       } finally {
         setOriginalLoading(false);
       }
@@ -55,6 +58,7 @@ function Compare() {
   
       } catch (error) {
         console.error("Error fetching disrupted data:", error);
+        setDisruptedError(error.response?.data?.detail || "An error occurred");
       } finally {
         setDisruptedLoading(false);
       }
@@ -76,7 +80,6 @@ function Compare() {
     return new File([blob], filename, { type: 'image/jpeg' });
   }
     
-
   return (
     <div className="model-container">
       <button onClick={() => navigate('/')} className="home-button">
@@ -91,6 +94,8 @@ function Compare() {
         <div className="arrow">→</div>
         {originalLoading ? (
           <img src="/loading.gif" alt="Loading" className="face-image" />
+        ) : originalError ? (
+          <p className="error-message">{originalError}</p>
         ) : (
           originalResult && <img src={`data:image/jpeg;base64,${originalResult}`} alt="Output Face 1" className="face-image" />
         )}
@@ -104,6 +109,8 @@ function Compare() {
         <div className="arrow">→</div>
         {disruptedLoading ? (
           <img src="/loading.gif" alt="Loading" className="face-image" />
+        ) : disruptedError ? (
+          <p className="error-message">{disruptedError}</p>
         ) : (
           disruptedResult && <img src={`data:image/jpeg;base64,${disruptedResult}`} alt="Output Face 2" className="face-image" />
         )}
