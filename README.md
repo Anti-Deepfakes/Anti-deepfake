@@ -34,6 +34,8 @@ pip install -r requirements.txt
 ```
 3. dlib의 얼굴 랜드마크 모델을 다운로드하고 models/ 폴더에 위치시킵니다.
 * shape_predictor_68_face_landmarks.dat 파일을 [여기](http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2)에서 다운로드하고 압축을 풉니다.
+* dlib을 설치하기 전, CMake 라이브러리가 먼저 설치되어 있어야합니다.
+* (Window OS) Visual Studio 2019를 설치하여 C++ Complier를 설치해야합니다.
 
 ## 사용 방법
 1. 데이터 준비
