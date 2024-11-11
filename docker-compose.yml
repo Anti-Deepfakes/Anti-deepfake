@@ -1,0 +1,23 @@
+services:
+  python:
+    container_name: pythond
+    image: python-app-d
+    environment:
+      - TZ=Asia/Seoul
+    networks:
+      - app-network
+    volumes:
+      - /home/ubuntu/model/:/home/ubuntu/model/
+      - /home/ubuntu/detector/deepfake-detector/:/home/ubuntu/detector/deepfake-detector/
+      - /home/ubuntu/attack/:/home/ubuntu/attack/
+      - /usr/bin/bash:/usr/bin/bash
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    runtime: nvidia
+networks:
+  app-network:
+    external: true
+
