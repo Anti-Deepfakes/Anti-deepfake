@@ -13,7 +13,7 @@ function Home() {
         <div className='content'>
           <div className="navy-banner">
             
-            <div className="subtitle">“가짜가 아닌 진짜를 지키다”</div>
+            <div className="subtitle">“가짜가 아닌 진짜를 지키다” </div>
             <br />
             <p>
             <span class="highlight">TruthGuard</span>는 딥페이크 기술의 악용을 방지하고 <br/>진실성을 보호하는 AI 기반 서비스입니다. </p>
