@@ -42,7 +42,7 @@ function Home() {
         </div>
       </div> */}
       <div className='footer'>
-      <a href="/">
+      <a href="https://chromewebstore.google.com/detail/truthguard/mofjgcmgpdjpiignbhecbgofgnhlbdel?hl=ko">
           <img src="/chrome.png" alt="Chrome Extension" className="chrome-extension-logo" />
         </a>
         <p>사용자는 크롬 익스텐션을 통해 간편하게 사진을 업로드하고, 보호된 이미지를 다운로드할 수 있습니다. </p>
