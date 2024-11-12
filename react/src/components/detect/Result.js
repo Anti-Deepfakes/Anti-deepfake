@@ -49,7 +49,7 @@ function Result() {
       };
 
       // PUT 요청 보내기
-      await axios.put("https://truthguard.site/api/photos/feedback", requestBody, {
+      await axios.put("https://anti-deepfake.kr/api/photos/feedback", requestBody, {
         headers: {
           'Content-Type': 'application/json',
         }

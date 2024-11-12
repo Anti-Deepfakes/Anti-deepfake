@@ -27,7 +27,7 @@ function Compare() {
         const originalFile = base64ToFile(preview, 'original.jpg');
         const originalFormData = new FormData();
         originalFormData.append('image', originalFile);
-        const originalResponse = await axios.post("https://truthguard.site/disrupt/deepfake/generate", originalFormData, {
+        const originalResponse = await axios.post("https://anti-deepfake.kr/disrupt/deepfake/generate", originalFormData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           }
@@ -49,7 +49,7 @@ function Compare() {
         const disruptedFile = base64ToFile(`data:image/jpeg;base64,${disruptedImage}`, 'disrupted.jpg');
         const disruptedFormData = new FormData();
         disruptedFormData.append('image', disruptedFile);
-        const disruptedResponse = await axios.post("https://truthguard.site/disrupt/deepfake/generate", disruptedFormData, {
+        const disruptedResponse = await axios.post("https://anti-deepfake.kr/disrupt/deepfake/generate", disruptedFormData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           }

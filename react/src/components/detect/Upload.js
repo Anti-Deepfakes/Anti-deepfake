@@ -47,7 +47,7 @@ function Upload() {
     const formData = new FormData();
     formData.append('image', file);
 
-    axios.post('https://truthguard.site/api/photos/detection', formData, {
+    axios.post('https://anti-deepfake.kr/api/photos/detection', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
