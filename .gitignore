@@ -1,5 +1,3 @@
-data/**
 .idea
-wandb
-model/detect/**
 *.pth
+app/__pycache__
