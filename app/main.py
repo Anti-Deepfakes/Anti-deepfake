@@ -5,6 +5,9 @@ from model.detect_model_loader import load_multimodal_models
 from controller.trigger_controller import trigger_router
 import os
 import torch
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "5"
 
