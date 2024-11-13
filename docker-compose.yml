@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  fastapi-app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: fastapi_app
+    restart: always
+    environment:
+      - PYTHONPATH=/app
+      - CUDA_VISIBLE_DEVICES=5
+    volumes:
+      - ./app:/app
+      - /home/ubuntu/model/:/home/ubuntu/model/
+    expose:
+      - "8000"
+    networks:
+      - app-network
+    shm_size: '2gb'
+
+networks:
+  dpg_default:
+    external: true
+    driver: bridge
