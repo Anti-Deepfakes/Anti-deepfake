@@ -2,10 +2,7 @@ version: '3.8'
 
 services:
   fastapi-detect:
-    build:
-      context: ./app
-      dockerfile: Dockerfile
-    image: fastapi-detect:latest  # 로컬 빌드된 이미지를 사용하도록 명시적으로 설정
+    image: fastapi-detect:latest  # 여기서 이미지 이름을 일치시킵니다.
     container_name: fastapi_detect
     restart: always
     environment:
