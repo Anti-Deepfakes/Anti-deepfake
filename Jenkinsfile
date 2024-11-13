@@ -17,9 +17,8 @@ pipeline {
                         sh 'docker rm fastapi_detect || true'
                         sh 'docker rmi fastapi-detect || true'
 
-                        docker.build('fastapi-detect', '-f Dockerfile .')
-
-                        sh 'docker ps'
+                        // Docker 이미지 빌드
+                        sh 'docker build -t fastapi-detect -f Dockerfile .'
                     }
                 }
             }
