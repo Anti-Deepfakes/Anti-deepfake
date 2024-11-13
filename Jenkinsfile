@@ -22,9 +22,9 @@ pipeline {
             steps {
                 script {
                     dir("${COMPOSE_DIR}") {
-                        sh 'docker-compose stop fastapi-detect'
-                        sh 'docker-compose rm fastapi-detect'
-                        sh 'docker-compose rmi fastapi-detect'
+                        sh 'docker stop fastapi-detect'
+                        sh 'docker rm fastapi-detect'
+                        sh 'docker rmi fastapi-detect'
 
                         sh 'docker-compose up -d fastapi-detect'
                     }
@@ -38,9 +38,9 @@ pipeline {
             echo 'Cleaning up...'
             script {
                 dir("${COMPOSE_DIR}") {
-                    sh 'docker-compose stop fastapi-detect'
-                    sh 'docker-compose rm fastapi-detect'
-                    sh 'docker-compose rmi fastapi-detect'
+                    sh 'docker stop fastapi-detect'
+                    sh 'docker rm fastapi-detect'
+                    sh 'docker rmi fastapi-detect'
                 }
             }
         }
