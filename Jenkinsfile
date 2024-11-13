@@ -10,7 +10,8 @@ pipeline {
             steps {
                 script {
                     // FastAPI Docker 이미지 빌드
-                    dir('./fastapi') {
+                    dir('./app') {
+                        sh 'ls -al' // Dockerfile이 있는지 확인
                         docker.build('fastapi-image', '-f Dockerfile .')
                     }
                 }
@@ -21,7 +22,6 @@ pipeline {
             steps {
                 script {
                     dir("${COMPOSE_DIR}") {
-                        // 기존 FastAPI 컨테이너 중지 및 삭제 후 새로 배포
                         sh 'docker-compose down'
                         sh 'docker-compose up -d fastapi-app'
                     }
