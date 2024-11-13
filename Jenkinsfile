@@ -12,6 +12,11 @@ pipeline {
                     // FastAPI Docker 이미지 빌드
                     dir('./app') {
                         sh 'ls -al' // Dockerfile이 있는지 확인
+                        // 기존 컨테이너 제거 및 이미지 삭제
+                        sh 'docker stop fastapi_detect || true'
+                        sh 'docker rm fastapi_detect || true'
+                        sh 'docker rmi fastapi-detect || true'
+
                         docker.build('fastapi-detect', '-f Dockerfile .')
                     }
                 }
@@ -22,14 +27,10 @@ pipeline {
             steps {
                 script {
                     dir("${COMPOSE_DIR}") {
-                        // 기존 컨테이너 제거 및 이미지 삭제
-                        sh 'docker stop fastapi_detect || true'
-                        sh 'docker rm fastapi_detect || true'
-                        sh 'docker rmi fastapi-detect || true'
+
 
                         // Docker Compose로 FastAPI 컨테이너 빌드 및 실행
-                        sh 'docker-compose down || true'
-                        sh 'docker-compose build --no-cache'
+//                         sh 'docker-compose build --no-cache'
                         sh 'docker-compose up -d'
                     }
                 }
