@@ -18,6 +18,8 @@ pipeline {
                         sh 'docker rmi fastapi-detect || true'
 
                         docker.build('fastapi-detect', '-f Dockerfile .')
+
+                        sh 'docker ps'
                     }
                 }
             }
@@ -27,10 +29,8 @@ pipeline {
             steps {
                 script {
                     dir("${COMPOSE_DIR}") {
-
-
                         // Docker Compose로 FastAPI 컨테이너 빌드 및 실행
-//                         sh 'docker-compose build --no-cache'
+                        sh 'docker-compose build --no-cache'
                         sh 'docker-compose up -d'
                     }
                 }
