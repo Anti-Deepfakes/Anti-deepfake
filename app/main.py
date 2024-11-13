@@ -18,7 +18,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 @app.on_event("startup")
 async def startup_event():
     # 모델을 FastAPI의 app.state에 저장
-    app.state.model_eye, app.state.model_nose, app.state.model_mouth, app.state.final_layer = load_multimodal_models("model/detect/model_checkpoint_epoch_24.pth", device)
+    app.state.model_eye, app.state.model_nose, app.state.model_mouth, app.state.final_layer = load_multimodal_models("/home/ubuntu/model/model_checkpoint_epoch_24.pth", device)
     app.state.device = device
 
 app.include_router(image_router, prefix="/api/detect")
