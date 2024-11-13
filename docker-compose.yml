@@ -5,7 +5,6 @@ services:
     build:
       context: ./app
       dockerfile: Dockerfile
-    image: fastapi-detect
     container_name: fastapi_detect
     restart: always
     environment:
