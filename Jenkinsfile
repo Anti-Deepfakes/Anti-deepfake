@@ -6,30 +6,10 @@ pipeline {
     }
 
     stages {
-        stage('Build Spring Backend') {
-            steps {
-                script {
-                    dir('./test') {
-                        sh 'chmod +x gradlew'
-                        sh './gradlew build -x test'
-                    }
-                }
-            }
-        }
-
-        stage('Build Docker Image for Spring') {
-            steps {
-                script {
-                    dir('./test') {
-                        docker.build('spring-image', '-f Dockerfile .')
-                    }
-                }
-            }
-        }
-
         stage('Build Docker Image for FastAPI') {
             steps {
                 script {
+                    // FastAPI Docker 이미지 빌드
                     dir('./fastapi') {
                         docker.build('fastapi-image', '-f Dockerfile .')
                     }
@@ -37,12 +17,13 @@ pipeline {
             }
         }
 
-        stage('docker-compose up') {
+        stage('Deploy FastAPI with Docker Compose') {
             steps {
                 script {
                     dir("${COMPOSE_DIR}") {
+                        // 기존 FastAPI 컨테이너 중지 및 삭제 후 새로 배포
                         sh 'docker-compose down'
-                        sh 'docker-compose up -d'
+                        sh 'docker-compose up -d fastapi-app'
                     }
                 }
             }
