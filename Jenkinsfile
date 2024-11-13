@@ -33,6 +33,7 @@ pipeline {
                         // Docker Compose로 FastAPI 컨테이너 빌드 및 실행
 //                         sh 'docker-compose build --no-cache'
                         sh 'ls -al'
+                        sh 'docker images'
                         sh 'docker-compose up -d'
                     }
                 }
