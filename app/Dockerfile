@@ -15,8 +15,8 @@ RUN apt-get update && apt-get install -y \
 RUN pip install --no-cache-dir dlib
 
 # 모델 파일을 Docker 이미지의 /app/models 폴더로 복사
-RUN mkdir -p /app/models
-COPY ./models/shape_predictor_68_face_landmarks.dat /app/models/
+# RUN mkdir -p /app/models
+# COPY ./models/shape_predictor_68_face_landmarks.dat /app/models/
 
 # 나머지 Python 패키지 설치
 COPY requirements.txt .
