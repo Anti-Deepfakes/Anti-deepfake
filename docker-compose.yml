@@ -3,7 +3,7 @@ version: '3.8'
 services:
   fastapi-detect:
     image: fastapi-detect:latest  # 여기서 이미지 이름을 일치시킵니다.
-    container_name: fastapi_detect
+    container_name: fastapi-detect
     restart: always
     environment:
       - PYTHONPATH=/app
