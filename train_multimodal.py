@@ -33,7 +33,6 @@ class EarlyStopping:
             if self.counter >= self.patience:
                 self.early_stop = True
 
-# Custom Dataset for loading images from folders
 class DeepfakeDataset(Dataset):
     def __init__(self, real_dir, fake_dir, transform=None):
         self.image_paths = []
@@ -85,11 +84,13 @@ def get_multimodal_model():
     for model in [model_eye, model_nose, model_mouth]:
         model.classif = nn.Sequential(
             nn.Linear(model.classif.in_features, 128),
-            nn.ReLU()
+            nn.ReLU(),
+            nn.Dropout(0.3)
         )
 
     final_layer = nn.Sequential(
-        nn.Linear(128 * 3, 1)
+        nn.Linear(128 * 3, 1),
+        nn.Sigmoid()
     )
 
     return model_eye, model_nose, model_mouth, final_layer
@@ -103,7 +104,19 @@ def multimodal_forward(eye, nose, mouth, model_eye, model_nose, model_mouth, fin
     output = final_layer(combined_features)
     return output
 
-def train_model(models, final_layer, criterion, optimizer, scaler, dataloader, device):
+class FocalLoss(nn.Module):
+    def __init__(self, alpha=1, gamma=2):
+        super(FocalLoss, self).__init__()
+        self.alpha = alpha
+        self.gamma = gamma
+
+    def forward(self, inputs, targets):
+        BCE_loss = nn.BCEWithLogitsLoss()(inputs, targets)
+        pt = torch.exp(-BCE_loss)
+        F_loss = self.alpha * (1 - pt) ** self.gamma * BCE_loss
+        return F_loss
+
+def train_model(models, final_layer, criterion, optimizer, scheduler, scaler, dataloader, device):
     model_eye, model_nose, model_mouth = models
     model_eye.train()
     model_nose.train()
@@ -136,21 +149,18 @@ def train_model(models, final_layer, criterion, optimizer, scaler, dataloader, d
 
         running_loss += loss.item() * eye.size(0)
         wandb.log({"train_loss": loss.item()})
-
-        # Clear cache periodically to free up GPU memory
         torch.cuda.empty_cache()
 
-    epoch_loss = running_loss / len(dataloader.dataset)
-    return epoch_loss
+    scheduler.step()
+    return running_loss / len(dataloader.dataset)
 
-def collate_fn(batch):
-    batch = [data for data in batch if data is not None]
-    if len(batch) == 0:
-        return None
-    return default_collate(batch)
+def validate_model(models, final_layer, criterion, val_loader, device):
+    model_eye, model_nose, model_mouth = models
+    model_eye.eval()
+    model_nose.eval()
+    model_mouth.eval()
+    final_layer.eval()
 
-def validate_model(model, criterion, val_loader, device):
-    model.eval()
     running_loss = 0.0
     with torch.no_grad():
         for images, labels in val_loader:
@@ -162,50 +172,32 @@ def validate_model(model, criterion, val_loader, device):
             mouth = mouth.to(device).float()
             labels = labels.to(device).float().unsqueeze(1)
 
-            outputs = multimodal_forward(eye, nose, mouth, *model)
+            outputs = multimodal_forward(eye, nose, mouth, model_eye, model_nose, model_mouth, final_layer)
             loss = criterion(outputs, labels)
             running_loss += loss.item() * eye.size(0)
 
-    val_loss = running_loss / len(val_loader.dataset)
-    return val_loss
+    return running_loss / len(val_loader.dataset)
 
-def save_checkpoint(epoch, model_eye, model_nose, model_mouth, final_layer, checkpoint_dir="checkpoints", best=False, max_checkpoints=10):
-    os.makedirs(checkpoint_dir, exist_ok=True)
-    checkpoint = {
-        'epoch': epoch,
-        'model_eye_state_dict': model_eye.state_dict(),
-        'model_nose_state_dict': model_nose.state_dict(),
-        'model_mouth_state_dict': model_mouth.state_dict(),
-        'final_layer_state_dict': final_layer.state_dict()
-    }
-
-    if best:
-        filename = "best_model.pth"
-    else:
-        filename = f"model_checkpoint_epoch_{epoch}.pth"
-    torch.save(checkpoint, os.path.join(checkpoint_dir, filename))
-    print(f"Checkpoint saved: {filename}")
-
-    checkpoints = sorted(
-        [os.path.join(checkpoint_dir, f) for f in os.listdir(checkpoint_dir) if f.startswith("model_checkpoint")],
-        key=os.path.getctime
-    )
-    if len(checkpoints) > max_checkpoints:
-        os.remove(checkpoints[0])
-        print(f"Deleted old checkpoint: {checkpoints[0]}")
+def load_checkpoint(checkpoint_path, model_eye, model_nose, model_mouth, final_layer):
+    checkpoint = torch.load(checkpoint_path)
+    model_eye.load_state_dict(checkpoint['model_eye_state_dict'])
+    model_nose.load_state_dict(checkpoint['model_nose_state_dict'])
+    model_mouth.load_state_dict(checkpoint['model_mouth_state_dict'])
+    final_layer.load_state_dict(checkpoint['final_layer_state_dict'])
+    print(f"Loaded checkpoint from '{checkpoint_path}'")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="멀티모달 딥페이크 탐지 모델 학습 스크립트")
-    parser.add_argument("--epochs", type=int, default=10, help="학습 반복 횟수 (기본값: 10)")
-    parser.add_argument("--batch_size", type=int, default=4, help="훈련 배치 크기 (기본값: 4)")
-    parser.add_argument("--learning_rate", type=float, default=0.001, help="학습률 (기본값: 0.001)")
-    parser.add_argument("--real_dir", type=str, default="./data/REAL", help="실제 이미지가 저장된 디렉토리 경로 (기본값: ./data/REAL)")
-    parser.add_argument("--fake_dir", type=str, default="./data/FAKE", help="가짜 이미지가 저장된 디렉토리 경로 (기본값: ./data/FAKE)")
-    parser.add_argument("--gpu", type=int, default=0, help="학습에 사용할 GPU ID (기본값: 0)")
+    parser = argparse.ArgumentParser(description="Deepfake Detection Training")
+    parser.add_argument("--epochs", type=int, default=10)
+    parser.add_argument("--batch_size", type=int, default=4)
+    parser.add_argument("--learning_rate", type=float, default=0.001)
+    parser.add_argument("--real_dir", type=str, default="./data/REAL")
+    parser.add_argument("--fake_dir", type=str, default="./data/FAKE")
+    parser.add_argument("--gpu", type=int, default=0)
+    parser.add_argument("--checkpoint", type=str, default=None)
     args = parser.parse_args()
 
-    device = torch.device(f"cuda:{args.gpu}" if torch.cuda.is_available() and args.gpu < torch.cuda.device_count() else "cpu")
-    print(f"Using device: {device}")
+    device = torch.device(f"cuda:{args.gpu}" if torch.cuda.is_available() else "cpu")
 
     transform = transforms.Compose([
         transforms.ToTensor(),
@@ -215,47 +207,25 @@ if __name__ == "__main__":
 
     dataset = DeepfakeDataset(args.real_dir, args.fake_dir, transform=transform)
     train_size = int(0.8 * len(dataset))
-    val_size = len(dataset) - train_size
-    train_dataset, val_dataset = torch.utils.data.random_split(dataset, [train_size, val_size])
+    train_dataset, val_dataset = torch.utils.data.random_split(dataset, [train_size, len(dataset) - train_size])
 
-    train_loader = DataLoader(
-        train_dataset, batch_size=args.batch_size, shuffle=True, collate_fn=collate_fn,
-        pin_memory=True, persistent_workers=True, num_workers=2
-    )
-    val_loader = DataLoader(
-        val_dataset, batch_size=args.batch_size, shuffle=False, collate_fn=collate_fn,
-        pin_memory=True, persistent_workers=True, num_workers=2
-    )
+    train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=4)
+    val_loader = DataLoader(val_dataset, batch_size=args.batch_size, num_workers=4)
 
     model_eye, model_nose, model_mouth, final_layer = get_multimodal_model()
+    if args.checkpoint:
+        load_checkpoint(args.checkpoint, model_eye, model_nose, model_mouth, final_layer)
+
     models = (model_eye.to(device), model_nose.to(device), model_mouth.to(device))
     final_layer = final_layer.to(device)
 
-    criterion = nn.BCEWithLogitsLoss()
-    optimizer = optim.Adam(list(model_eye.parameters()) + list(model_nose.parameters()) + list(model_mouth.parameters()) + list(final_layer.parameters()), lr=args.learning_rate)
-
-    scaler = torch.cuda.amp.GradScaler()
-    early_stopping = EarlyStopping(patience=5, min_delta=0.001)
-    best_val_loss = float('inf')
+    criterion = FocalLoss()
+    optimizer = optim.Adam(list(model_eye.parameters()) + list(model_nose.parameters()) +
+                           list(model_mouth.parameters()) + list(final_layer.parameters()), lr=args.learning_rate)
 
     for epoch in range(args.epochs):
-        train_loss = train_model(models, final_layer, criterion, optimizer, scaler, train_loader, device)
-        print(f"Epoch {epoch + 1}/{args.epochs}, Training Loss: {train_loss:.4f}")
-        wandb.log({"epoch": epoch + 1, "train_loss_epoch": train_loss})
-
-        val_loss = validate_model((model_eye, model_nose, model_mouth, final_layer), criterion, val_loader, device)
-        print(f"Epoch {epoch + 1}/{args.epochs}, Validation Loss: {val_loss:.4f}")
-        wandb.log({"epoch": epoch + 1, "val_loss_epoch": val_loss})
-
-        save_checkpoint(epoch + 1, model_eye, model_nose, model_mouth, final_layer)
-
-        if val_loss < best_val_loss:
-            best_val_loss = val_loss
-            save_checkpoint(epoch + 1, model_eye, model_nose, model_mouth, final_layer, best=True)
-
-        early_stopping(val_loss)
-        if early_stopping.early_stop:
-            print("Early stopping triggered.")
-            break
+        train_loss = train_model(models, final_layer, criterion, optimizer, None, torch.amp.GradScaler(), train_loader, device)
+        val_loss = validate_model(models, final_layer, criterion, val_loader, device)
+        print(f"Epoch {epoch + 1}, Train Loss: {train_loss}, Val Loss: {val_loss}")
 
     wandb.finish()
