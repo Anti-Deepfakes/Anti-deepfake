@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        COMPOSE_DIR = '/var/compose'
+        COMPOSE_DIR = '/home/ubuntu/dpg/compose'
     }
 
     stages {
