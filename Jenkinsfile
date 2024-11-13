@@ -22,11 +22,13 @@ pipeline {
             steps {
                 script {
                     dir("${COMPOSE_DIR}") {
-                        sh 'docker stop fastapi-detect'
-                        sh 'docker rm fastapi-detect'
-                        sh 'docker rmi fastapi-detect'
+                        // 컨테이너 이름을 'fastapi_detect'로 변경
+                        sh 'docker stop fastapi_detect || true'
+                        sh 'docker rm fastapi_detect || true'
+                        sh 'docker rmi fastapi-image || true'
 
-                        sh 'docker-compose up -d fastapi-detect'
+                        // Docker Compose로 FastAPI 컨테이너 실행
+                        sh 'docker-compose up -d'
                     }
                 }
             }
@@ -38,9 +40,9 @@ pipeline {
             echo 'Cleaning up...'
             script {
                 dir("${COMPOSE_DIR}") {
-                    sh 'docker stop fastapi-detect'
-                    sh 'docker rm fastapi-detect'
-                    sh 'docker rmi fastapi-detect'
+                    sh 'docker stop fastapi_detect || true'
+                    sh 'docker rm fastapi_detect || true'
+                    sh 'docker rmi fastapi-image || true'
                 }
             }
         }
