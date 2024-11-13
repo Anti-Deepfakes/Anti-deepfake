@@ -5,7 +5,7 @@ services:
     build:
       context: ./app
       dockerfile: Dockerfile
-    image: fastapi-detect:latest  # 이미지 이름을 fastapi-detect로 통일
+    image: fastapi-detect
     container_name: fastapi_detect
     restart: always
     environment:
