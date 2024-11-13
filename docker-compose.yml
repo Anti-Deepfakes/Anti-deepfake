@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  fastapi-app:
+  fastapi-detect:
     build:
       context: ./app
       dockerfile: Dockerfile
