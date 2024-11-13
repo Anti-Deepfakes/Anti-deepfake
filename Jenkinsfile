@@ -28,6 +28,7 @@ pipeline {
                         sh 'docker rmi fastapi-image || true'
 
                         // Docker Compose로 FastAPI 컨테이너 실행
+                        sh 'docker-compose build'
                         sh 'docker-compose up -d'
                     }
                 }
