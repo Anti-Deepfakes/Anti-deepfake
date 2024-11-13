@@ -15,7 +15,6 @@ services:
       - "8000"
     networks:
       - dpg_default
-    shm_size: '2gb'
 
 networks:
   dpg_default:
