@@ -10,6 +10,8 @@ RUN apt-get update && apt-get install -y \
     g++ \
     && rm -rf /var/lib/apt/lists/*
 
+WORKDIR /workspace
+
 RUN pip install --no-cache-dir dlib
 
 COPY requirements.txt .
