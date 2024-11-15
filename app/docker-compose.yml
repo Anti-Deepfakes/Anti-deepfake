@@ -2,19 +2,21 @@ version: '3.8'
 
 services:
   fastapi-detect:
-    image: fastapi-detect:latest  # 여기서 이미지 이름을 일치시킵니다.
+    image: fastapi-detect:latest
     container_name: fastapi-detect
     restart: always
     environment:
       - PYTHONPATH=/app
       - CUDA_VISIBLE_DEVICES=5
     volumes:
-      - ./app:/app
+      # 호스트의 모델 디렉토리를 컨테이너에 마운트
       - /home/ubuntu/model/:/home/ubuntu/model/
     expose:
       - "8000"
     networks:
       - dpg_default
+    depends_on:
+      - db
 
 networks:
   dpg_default:
