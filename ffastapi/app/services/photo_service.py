@@ -116,7 +116,7 @@ class PhotoService:
         print("start Database Save")
         npz_url = os.path.join(directory, f"{file_name}.npz")
         create_preprocessing(db, npz_url,True,None)
-        if file_name>=9:
+        if int(file_name[3:])>=9:
             do_trigger(db)
             pass
             
