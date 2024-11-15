@@ -42,27 +42,31 @@ function Upload() {
       alert('이미지를 업로드해주세요!');
       return;
     }
-
+  
     dispatch({ type: 'REQUEST_START' }); // 로딩 상태 설정
     const formData = new FormData();
-    formData.append('image', file);
-
-    axios.post('https://anti-deepfake.kr/api/photos/detection', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    })
-      .then((response) => {
-        dispatch({ type: 'REQUEST_SUCCESS', payload: response.data });
-        // console.log(response);
+    formData.append('file', file);
+  
+    const makeRequest = () => {
+      axios.post('https://anti-deepfake.kr/detect/predict', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       })
-      .catch((error) => {
-        console.error(error);
-        dispatch({ type: 'REQUEST_ERROR', payload: '결과를 가져오는 데 실패했습니다.' });
-      });
-
-    navigate('/detect/predict', { state: { preview } }); // 비동기 요청 중에 페이지 이동
+        .then((response) => {
+          dispatch({ type: 'REQUEST_SUCCESS', payload: response.data.data[0] });
+          console.log(response);
+        })
+        .catch((error) => {
+          console.warn('재시도 중...');
+          setTimeout(makeRequest, 1000);
+        });
+        navigate('/detect/predict', { state: { preview } }); // 비동기 요청 중에 페이지 이동
+    };
+  
+    makeRequest(); // 첫 번째 요청 실행
   };
+  
 
   return (
     <div className="main-container">

@@ -8,6 +8,7 @@ function Result() {
   const location = useLocation();
   const navigate = useNavigate();
   const [selectedOption, setSelectedOption] = useState('');
+  const [predictResult, setPredictResult] = useState(false); // true: 딥페이크 | false: 원본
   const { preview, isFake } = location.state || {};
   const [icon, setIcon] = useState('');
 
@@ -19,50 +20,20 @@ function Result() {
     if (loading) {
       setIcon('/loading.gif');
     }
-    if (result && result.deepfakeProbability) {
-      console.log('확률:', result.deepfakeProbability);
-      if (result.deepfakeProbability > 50) { // 딥페이크 영상물
-        setIcon('/warning.png');
-      } else { // 원본
+    if (result && result.conf) {
+      console.log('확률:', result.conf);
+      if (result.conf == 50) { // 원본
         setIcon('/check.png'); 
+        setPredictResult(false);
+      } else { // 딥페이크 영상물
+        setIcon('/warning.png');
+        setPredictResult(true);
       }
     }
     if (error) {
       setIcon(null);
     }
   }, [result, loading, error]); // result 값이 바뀔 때만 실행
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      // 선택되지 않았을 경우 경고 메시지 표시
-      if (selectedOption === '') {
-        alert('옵션을 선택해주세요.');
-        return;
-      }
-
-      // JSON 객체 생성
-      const requestBody = {
-        feedbackId: result.feedbackId,
-        userPredict: isFake ? 1 : 0,
-        userLabel: selectedOption === "yes" ? 1 : 0
-      };
-
-      // PUT 요청 보내기
-      await axios.put("https://anti-deepfake.kr/api/photos/feedback", requestBody, {
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-
-      alert('피드백이 성공적으로 제출되었습니다.');
-      // navigate('/'); // 제출 후 홈으로 이동
-
-    } catch (error) {
-      console.error('오류 발생:', error);
-      alert('오류가 발생했습니다. 나중에 다시 시도해주세요.');
-    }
-  };
 
   return (
     <div className="result-container">
@@ -89,39 +60,15 @@ function Result() {
         </div>
         {/* 상태에 따라 내용 표시 */}
         {error && <p className="error-text">{error}</p>}
-        {result && result.deepfakeProbability && (
+        {result && (
           <div className="result-box">
-            <p>해당 영상물은 {result.deepfakeProbability}% 확률로 딥페이크 영상물입니다.</p>
+            {/* predictResult 값에 따라 텍스트 표시 */}
+            <p>
+              해당 영상물은 {predictResult ? "딥페이크 생성물 " : "원본 "} 입니다.
+            </p>
           </div>
         )}
       </div>
-      {result && (
-        <div className="review-content">
-        <form onSubmit={handleSubmit} className="review-form">
-          <div className="radio-group">
-            <label>
-              <input
-                type="radio"
-                value="yes"
-                checked={selectedOption === 'yes'}
-                onChange={() => setSelectedOption('yes')}
-              />
-              신뢰합니다
-            </label>
-            <label>
-              <input
-                type="radio"
-                value="no"
-                checked={selectedOption === 'no'}
-                onChange={() => setSelectedOption('no')}
-              />
-              신뢰하지 않습니다
-            </label>
-          </div>
-          <button type="submit" className="submit-button">제출</button>
-        </form>
-      </div>
-    )}
     </div>
   );
 }
