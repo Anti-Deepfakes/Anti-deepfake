@@ -2,7 +2,7 @@
 FROM python:3.12.5-slim
 
 # 빌드 도구와 dlib 설치를 위한 필수 패키지 설치
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y \
     cmake \
     libopenblas-dev \
     liblapack-dev \
