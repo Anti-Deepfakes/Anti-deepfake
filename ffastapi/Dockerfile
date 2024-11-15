@@ -3,6 +3,7 @@ FROM python:3.12-slim
 
 # 2. 작업 디렉토리를 설정
 WORKDIR /app
+RUN apt-get update && apt-get install -y build-essential
 
 # 3. 시스템 의존성 설치 (여기서는 OpenCV와 같은 패키지를 설치)
 RUN apt-get update && \
