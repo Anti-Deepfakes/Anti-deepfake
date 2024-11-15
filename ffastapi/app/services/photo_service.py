@@ -7,7 +7,8 @@ import numpy as np
 import cv2
 import os
 from insightface.app import FaceAnalysis
-
+from sqlalchemy.orm import Session
+from models.preprocessing import PreprocessingEntity
 
 class PhotoService:
     @staticmethod
@@ -70,7 +71,7 @@ class PhotoService:
             print(f"Error during photo detection: {e}")
         return -1  # 오류 발생 시 -1 반환
     @staticmethod
-    def preprocessing(image):
+    def preprocessing(image, db: Session):
         # 이미지를 메모리에서 읽기
         image_bytes = image.file.read()
 
@@ -125,7 +126,10 @@ class PhotoService:
         cv2.imwrite(os.path.join(directory, f"{file_name}.jpg"), image_resized)
 
         print(f"Saved {file_name}.npz and {file_name}.jpg")
-
+        print("end saving")
+        print("start Database Save")
+        npz_url = os.path.join(directory, f"{file_name}.npz")
+        create_preprocessing(db, npz_url,True,None)
         # 반환값으로 파일명 또는 성공 메시지를 반환
         return {"message": "Preprocessing successful", "filename": f"{file_name}.npz"}
     
@@ -142,6 +146,15 @@ def add_weight_to_landmarks(weight_map, landmarks):
             x, y = int(x), int(y)
             weight_map[max(0, y-5):min(weight_map.shape[0], y+5), max(0, x-5):min(weight_map.shape[1], x+5)] = 2.0  # 랜드마크 주변에 가중치 2 부여
     return weight_map
+
+
+def create_preprocessing(db: Session, npz_url: str, is_tmp: bool = True, now_ver: int = None):
+    db_item = PreprocessingEntity(npz_url=npz_url, is_tmp=is_tmp, now_ver=now_ver)
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
     # @staticmethod
     # def update_user_predict(feedback_id: int, user_feedback: int, user_label: int):
     #     if user_feedback not in (0, 1) or user_label not in (0, 1):
