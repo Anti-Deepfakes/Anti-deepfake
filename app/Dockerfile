@@ -25,6 +25,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # 애플리케이션 파일 복사
 COPY . .
 CMD ["pwd"]
+CMD ["ls -al"]
 
 # FastAPI 서버 실행
 ENTRYPOINT ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
