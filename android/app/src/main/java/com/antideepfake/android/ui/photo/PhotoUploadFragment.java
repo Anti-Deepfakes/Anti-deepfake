@@ -29,6 +29,11 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.antideepfake.android.databinding.FragmentUploadBinding;
+import com.antideepfake.android.utils.ImageUtils;
+import com.google.mlkit.vision.common.InputImage;
+import com.google.mlkit.vision.face.FaceDetection;
+import com.google.mlkit.vision.face.FaceDetector;
+import com.google.mlkit.vision.face.FaceDetectorOptions;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -45,11 +50,12 @@ public class PhotoUploadFragment extends Fragment {
                 if (result.getResultCode() == getActivity().RESULT_OK && result.getData() != null) {
                     Uri imageUri = result.getData().getData();
                     try {
-                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), imageUri);
-                        Log.d(TAG, "이미지 불러오기 성공"); // 이미지 불러오기 로그
+                        Bitmap bitmap = ImageUtils.loadBitmapAndCorrectOrientation(getActivity(), imageUri);
+                        Log.d(TAG, "이미지 불러오기 및 회전 보정 성공");
 
                         // 흑백으로 변환하여 미리보기 ImageView에 설정
                         grayscaleBitmap = convertToGrayScale(bitmap);
+                        detectFaces(bitmap);
                         binding.imageView.setImageBitmap(grayscaleBitmap);
                         Log.d(TAG, "이미지 흑백 변환 및 미리보기 설정 완료");
                     } catch (IOException e) {
@@ -108,6 +114,32 @@ public class PhotoUploadFragment extends Fragment {
         paint.setColorFilter(filter);
         canvas.drawBitmap(originalBitmap, 0, 0, paint);
         return grayscaleBitmap;
+    }
+
+    private void detectFaces(Bitmap bitmap) {
+        InputImage image = InputImage.fromBitmap(bitmap, 0);
+
+        FaceDetectorOptions options = new FaceDetectorOptions.Builder()
+                .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
+                .build();
+
+        FaceDetector detector = FaceDetection.getClient(options);
+
+        detector.process(image)
+                .addOnSuccessListener(faces -> {
+                    Log.d("FaceDetection", faces.toString());
+                    int result = faces.size() > 0 ? 1 : 0; // 얼굴이 있으면 1, 없으면 0
+                    onFaceDetectionResult(result);
+                })
+                .addOnFailureListener(e -> e.printStackTrace());
+    }
+
+    private void onFaceDetectionResult(int result) {
+        if (result == 1) {
+            Log.d("FaceDetection", "사람이 있습니다.");
+        } else {
+            Log.d("FaceDetection", "사람이 없습니다.");
+        }
     }
 
     // 흑백 이미지를 갤러리의 antideepfake 폴더에 저장
