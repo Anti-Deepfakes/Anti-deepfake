@@ -14,14 +14,7 @@ pipeline {
 //                             sh 'docker rm fastapi_detect || true'
 //                             sh 'docker rmi fastapi-detect:latest || true'
 
-
                         sh 'docker build -t fastapi-detect:latest -f Dockerfile .'
-
-                        sh 'pwd'
-
-                        sh 'chmod -R 755 ${COMPOSE_DIR}'
-                        sh 'cp ../docker-compose.yml ${COMPOSE_DIR}'
-
                     }
                 }
             }
