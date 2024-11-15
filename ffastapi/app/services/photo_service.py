@@ -5,6 +5,7 @@ from fastapi import UploadFile
 from io import BytesIO
 import numpy as np
 import cv2
+import os
 from insightface.app import FaceAnalysis
 
 
