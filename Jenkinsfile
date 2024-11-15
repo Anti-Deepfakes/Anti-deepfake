@@ -17,25 +17,23 @@ pipeline {
                         sh 'ls -al'
 
                         sh 'docker build -t fastapi-detect:latest -f Dockerfile .'
+                    }
+                }
+            }
+        }
+
+        stage('Deploy FastAPI with Docker Compose') {
+            steps {
+                script {
+                    dir('./app') {
+                        sh 'pwd'
+                        sh 'ls'
                         sh 'docker-compose build --no-cache'
                         sh 'docker-compose up -d'
                     }
                 }
             }
         }
-
-//         stage('Deploy FastAPI with Docker Compose') {
-//             steps {
-//                 script {
-//                     dir('$./app') {
-//                         sh 'pwd'
-//                         sh 'ls'
-//                         sh 'docker-compose build --no-cache'
-//                         sh 'docker-compose up -d'
-//                     }
-//                 }
-//             }
-//         }
     }
 
     post {
