@@ -103,10 +103,10 @@ class PhotoService:
         weight_map = np.zeros(image_normalized.shape[1:], dtype=np.float32)
         weight_map = add_weight_to_bbox(weight_map, bbox)
         weight_map = add_weight_to_landmarks(weight_map, landmarks)
-
+        print("end preprocessing")
         # 이미지와 .npz 파일을 저장할 디렉토리 경로
         directory = '/home/ubuntu/data/disrupt/tmp/'
-
+        print("start saving")
         # 디렉토리에 있는 파일 목록을 확인하여 마지막 번호를 추적
         existing_files = os.listdir(directory)
         existing_files = [f for f in existing_files if f.endswith('.npz')]  # .npz 파일만 필터링
