@@ -3,7 +3,6 @@ pipeline {
 
     environment {
         COMPOSE_DIR = '/home/ubuntu/dpg/compose/fastapi-detect'
-        REPO_DIR = '/var/jenkins_home/workspace/fastapi-detect'
     }
 
     stages {
