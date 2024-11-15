@@ -8,6 +8,10 @@ from model.deepfake_model_loader import DeepfakeModel
 import os
 import torch
 from fastapi.middleware.cors import CORSMiddleware
+
+disrupt_model = os.getenv("DISRUPT_MODEL") # "/home/ubuntu/model/disrupt/unet_epoch_2.pth"
+deepfake_model = os.getenv("DEEPFAKE_MODEL") # "/home/ubuntu/model/disrupt/inswapper_128.onnx"
+
 app = FastAPI()
 origins = [
 	"*"
@@ -29,8 +33,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 @app.on_event("startup")
 async def startup_event():
     # 모델을 FastAPI의 app.state에 저장
-    app.state.model_disrupt = DisruptModel("model/disrupt/unet_epoch_2.pth", device).get_disrupt_model()
-    app.state.model_face_detector, app.state.model_deepfake = DeepfakeModel().get_deepfake_model()
+    app.state.model_disrupt = DisruptModel(disrupt_model, device).get_disrupt_model()
+    app.state.model_face_detector, app.state.model_deepfake = DeepfakeModel(deepfake_model).get_deepfake_model()
     # print(app.state.model_deepfake)
     app.state.device = device
 
