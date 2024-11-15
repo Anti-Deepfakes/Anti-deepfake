@@ -7,7 +7,7 @@ pipeline {
         stage('build image') {
             steps {
                 script {
-                    dir('./ffastapi/app'){
+                    dir('./ffastapi'){
                         docker.build('fast-image', '-f Dockerfile .')
                     }   
                 }
