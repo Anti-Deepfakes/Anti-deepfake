@@ -112,7 +112,7 @@ button:hover {
   gap: 15px;
 } 
 
-.github-logo,
+.gitlab-logo,
 .discord-logo,
 .chrome-extension-logo {
   width: 50px;
@@ -121,7 +121,7 @@ button:hover {
   transition: transform 0.3s; /* 호버 시 이미지 크기 살짝 확대 */
 }
 
-.github-logo:hover,
+.gitlab-logo:hover,
 .discord-logo:hover,
 .chrome-extension-logo:hover {
   transform: scale(1.1);

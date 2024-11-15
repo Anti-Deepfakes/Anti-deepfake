@@ -101,6 +101,14 @@ function Main() {
       <button className="judge-button" onClick={handleJudge} disabled={loading}>
         {loading ? '요청 중...' : '삽입하기'}
       </button>
+      <div className='footer'>
+      <a href="https://chromewebstore.google.com/detail/truthguard/mofjgcmgpdjpiignbhecbgofgnhlbdel?hl=ko">
+          <img src="/chrome.png" alt="Chrome Extension" className="chrome-extension-logo" />
+        </a>
+        <p>사용자는 크롬 익스텐션을 통해 간편하게 사진을 업로드하고, 보호된 이미지를 다운로드할 수 있습니다. </p>
+        <p>처리된 이미지는 서버에 저장되지 않으며, 개인정보는 안전하게 보호됩니다. </p>
+        <p>SNS 프로필 사진이나 공개 이미지에 노이즈를 삽입해 악의적인 사용을 예방하세요.</p>
+      </div>
     </div>
   );
 }

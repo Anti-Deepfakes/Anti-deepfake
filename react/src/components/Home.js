@@ -34,7 +34,7 @@ function Home() {
         <p>누구나 코드에 기여하고 개선에 참여할 수 있습니다.</p>
         <div className="image-container">
           <a href="https://lab.ssafy.com/s11-final/S11P31B201">
-            <img src="/gitlab.png" alt="GitHub Logo" className="github-logo" />
+            <img src="/gitlab.png" alt="Gitlab Logo" className="gitlab-logo" />
           </a>
           {/* <a href="https://www.naver.com">
             <img src="/discord.png" alt="Discord Logo" className="discord-logo" />
