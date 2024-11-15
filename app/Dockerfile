@@ -26,4 +26,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /app
 WORKDIR /app
 
+COPY ../docker-compose.yml /home/ubuntu/dpg/compose/fastapi-detect
+
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
