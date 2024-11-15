@@ -14,7 +14,7 @@ WORKDIR /workspace
 
 RUN pip install --no-cache-dir dlib
 
-COPY requirements.txt .
+COPY app/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 RUN pip install opencv-fixer==0.2.5 && \
