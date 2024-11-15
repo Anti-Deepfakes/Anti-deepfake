@@ -20,7 +20,8 @@ pipeline {
 
                         sh 'pwd'
 
-                        sh 'sudo cp ../docker-compose.yml ${COMPOSE_DIR}'
+                        sh 'chmod -R 755 ${COMPOSE_DIR}'
+                        sh 'cp ../docker-compose.yml ${COMPOSE_DIR}'
 
                     }
                 }
