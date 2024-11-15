@@ -1,5 +1,7 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException,Depends
 from app.services.photo_service import PhotoService
+from db import get_db  # database.py에서 get_db 임포트
+from sqlalchemy.orm import Session
 
 router = APIRouter(
     prefix="/photos",
@@ -15,9 +17,9 @@ async def detect(image: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"Error during file upload: {str(e)}")
     
 @router.post("/preprocessing")
-async def detect(image: UploadFile = File(...)):
+async def detect(image: UploadFile = File(...), db: Session = Depends(get_db)):
     try:
-        response = PhotoService.preprocessing(image)
+        response = PhotoService.preprocessing(image,db)
         return response
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error during preprocessing: {str(e)}")
