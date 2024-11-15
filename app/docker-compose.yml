@@ -6,10 +6,10 @@ services:
     container_name: fastapi-detect
     restart: always
     environment:
-      - PYTHONPATH=./app
+      - PYTHONPATH=/app
       - CUDA_VISIBLE_DEVICES=5
     volumes:
-      - ./app:/app
+      - .:/app
       - /home/ubuntu/model/:/home/ubuntu/model/
     expose:
       - "8000"
