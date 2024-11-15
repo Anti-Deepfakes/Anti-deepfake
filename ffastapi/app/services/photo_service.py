@@ -7,9 +7,7 @@ import numpy as np
 import cv2
 import os
 from insightface.app import FaceAnalysis
-from sqlalchemy.orm import Session
-from models.preprocessing import PreprocessingEntity
-
+from app.models.preprocessing import PreprocessingEntity
 class PhotoService:
     @staticmethod
     def file_upload(file: UploadFile) -> dict:
