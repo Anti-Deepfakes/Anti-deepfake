@@ -28,7 +28,7 @@ pipeline {
         stage('Deploy FastAPI with Docker Compose') {
             steps {
                 script {
-                    dir('"'$./app') {
+                    dir('$./app') {
                         sh 'pwd'
                         sh 'ls'
                         sh 'docker-compose build --no-cache'
