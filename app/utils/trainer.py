@@ -3,6 +3,7 @@ import torch
 from app.utils.train import train
 from app.utils.dataloader import create_dataloader
 from app.utils.hparams import HParam
+from sqlalchemy.orm import Session  # Session 임포트 추가
 
 def execute_training(data_dir: str, data_version: int, config_path: str, checkpoint_path: str, db: Session):
     """
