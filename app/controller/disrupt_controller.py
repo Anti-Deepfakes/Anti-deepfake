@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from trainer import execute_training
+from utils.trainer import execute_training
 from utils.evaluation import evaluate_and_save_performance
 from utils.mlflow_utils import get_latest_version
 from utils.db import get_db
