@@ -125,7 +125,6 @@ class PhotoService:
         
         # 반환값으로 파일명 또는 성공 메시지를 반환
         return {"message": "Preprocessing successful", "filename": f"{file_name}.npz"}
-# 디렉토리 버전 관리 함수
 def get_next_version(directory: str):
     """디렉토리에서 다음 버전 번호를 찾는 함수"""
     version_files = [f for f in os.listdir(directory) if f.startswith("ver")]
@@ -163,30 +162,36 @@ def do_trigger(db: Session):
     tmp_dir = "/home/ubuntu/data/disrupt/tmp/"
     train_dir = "/home/ubuntu/data/disrupt/train/"
     test_dir = "/home/ubuntu/data/disrupt/test/"
-    
-    for idx, result in enumerate(results):
-        # 파일 경로
-        file_path = os.path.join(tmp_dir, result.npz_url)
 
-        # 파일이 8개는 train 디렉토리로, 나머지 2개는 test 디렉토리로 이동
-        if idx < 8:  # train 디렉토리로 이동
-            target_dir = train_dir
-        else:  # test 디렉토리로 이동
-            target_dir = test_dir
-        
-        # 버전 이름 결정 (해당 디렉토리의 최신 버전 찾기)
-        ver_name = get_next_version(target_dir)
-        
-        # 파일을 target 디렉토리로 이동하고, 새 경로 반환
-        new_file_path = move_file(file_path, target_dir, ver_name)
+    # 버전 이름을 가져옵니다 (verXXX 형태로 자동 증가)
+    train_ver_name = get_next_version(train_dir)  # train 버전 번호
+    test_ver_name = get_next_version(test_dir)    # test 버전 번호
 
-        # DB에서 is_tmp를 False로 업데이트 및 npz_url 업데이트
-        result.is_tmp = False
-        result.npz_url = os.path.relpath(new_file_path, '/home/ubuntu/data/disrupt/')
-        result.now_ver = int(ver_name[3:])
-        db.commit()
+    # 파일을 8개는 train 디렉토리로, 나머지 2개는 test 디렉토리로 분류
+    train_files = results[:8]  # 첫 8개는 train 디렉토리로
+    test_files = results[8:10]  # 그다음 2개는 test 디렉토리로
+
+    # 파일을 각 디렉토리로 이동하고 DB에서 업데이트
+    for idx, file_group in enumerate([train_files, test_files]):
+        # 이동할 디렉토리 설정
+        target_dir = train_dir if idx == 0 else test_dir
+        ver_name = train_ver_name if idx == 0 else test_ver_name
+        
+        for result in file_group:
+            # 파일 경로
+            file_path = os.path.join(tmp_dir, result.npz_url)
+            
+            # 파일 이동
+            new_file_path = move_file(file_path, target_dir, ver_name)
+
+            # DB에서 is_tmp를 False로 업데이트 및 npz_url 업데이트
+            result.is_tmp = False
+            result.npz_url = os.path.relpath(new_file_path, '/home/ubuntu/data/disrupt/')
+            result.now_ver = int(ver_name[3:])
+            db.commit()
 
     return {"message": "Files moved and database updated successfully"}
+
 def add_weight_to_bbox(weight_map, bbox):
     x_min, y_min, x_max, y_max = bbox
     y_min, y_max, x_min, x_max = np.round([y_min, y_max, x_min, x_max]).astype(int)
