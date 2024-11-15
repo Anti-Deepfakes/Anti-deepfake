@@ -136,7 +136,6 @@ def get_next_version(directory: str):
     next_version = max(version_numbers) + 1
     return f"ver{next_version:03d}"  # ver001, ver002, ...
 
-# 파일을 지정된 디렉토리로 이동하는 함수
 def move_file(source_path: str, target_dir: str, ver_name: str):
     """파일을 target 디렉토리의 지정된 버전 디렉토리로 이동"""
     if not os.path.exists(target_dir):
@@ -152,24 +151,24 @@ def move_file(source_path: str, target_dir: str, ver_name: str):
     shutil.move(source_path, target_path)
     
     # 이동 후 새로운 경로를 반환
-    return target_path   
+    return target_path
+
 def do_trigger(db: Session):
     # is_tmp가 True인 데이터만 조회
-    # 1. is_tmp가 True인 데이터 가져오기
     results = db.query(PreprocessingEntity).filter(PreprocessingEntity.is_tmp == True).all()
 
     if len(results) < 10:
         raise Exception("Not enough files to process")
 
-    # 2. 파일들을 이동하고, DB에서 is_tmp를 False로 업데이트
     tmp_dir = "/home/ubuntu/data/disrupt/tmp/"
     train_dir = "/home/ubuntu/data/disrupt/train/"
     test_dir = "/home/ubuntu/data/disrupt/test/"
     
     for idx, result in enumerate(results):
-        # 3. 파일 경로와 버전 이름 결정
+        # 파일 경로
         file_path = os.path.join(tmp_dir, result.npz_url)
-        
+
+        # 파일이 8개는 train 디렉토리로, 나머지 2개는 test 디렉토리로 이동
         if idx < 8:  # train 디렉토리로 이동
             target_dir = train_dir
         else:  # test 디렉토리로 이동
@@ -178,18 +177,16 @@ def do_trigger(db: Session):
         # 버전 이름 결정 (해당 디렉토리의 최신 버전 찾기)
         ver_name = get_next_version(target_dir)
         
-        # 4. 파일 이동 및 새 경로 반환
+        # 파일을 target 디렉토리로 이동하고, 새 경로 반환
         new_file_path = move_file(file_path, target_dir, ver_name)
 
-        # 5. DB에서 is_tmp를 False로 업데이트 및 npz_url 업데이트
+        # DB에서 is_tmp를 False로 업데이트 및 npz_url 업데이트
         result.is_tmp = False
         result.npz_url = os.path.relpath(new_file_path, '/home/ubuntu/data/disrupt/')
         result.now_ver = int(ver_name[3:])
         db.commit()
 
     return {"message": "Files moved and database updated successfully"}
-
-
 def add_weight_to_bbox(weight_map, bbox):
     x_min, y_min, x_max, y_max = bbox
     y_min, y_max, x_min, x_max = np.round([y_min, y_max, x_min, x_max]).astype(int)
