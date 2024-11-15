@@ -7,7 +7,7 @@ pipeline {
         stage('build image') {
             steps {
                 script {
-                    dir('./app'){
+                    dir('./'){
                         docker.build('disrupt-train-image', '-f Dockerfile .')
                     }   
                 }
