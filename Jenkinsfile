@@ -13,6 +13,8 @@ pipeline {
 //                             sh 'docker stop fastapi_detect || true'
 //                             sh 'docker rm fastapi_detect || true'
 //                             sh 'docker rmi fastapi-detect:latest || true'
+                        sh 'pwd'
+                        sh 'ls -al'
 
                         sh 'docker build -t fastapi-detect:latest -f Dockerfile .'
                     }
