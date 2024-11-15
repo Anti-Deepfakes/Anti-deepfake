@@ -1,6 +1,5 @@
 package com.antideepfake.android.worker;
 
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -8,9 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
-import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -20,6 +17,9 @@ import androidx.annotation.NonNull;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import com.antideepfake.android.utils.ImageUtils;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -28,6 +28,7 @@ import java.util.List;
 public class PhotoTransformationWorker extends Worker {
 
     private static final String TAG = "PhotoTransformationWorker";
+    private static final String TARGET_FOLDER = Environment.DIRECTORY_PICTURES + "/antideepfake";
 
     public PhotoTransformationWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
@@ -37,24 +38,31 @@ public class PhotoTransformationWorker extends Worker {
     @Override
     public Result doWork() {
         try {
-            // 최근 추가된 이미지 목록 가져오기
+            // 최근 갤러리에 추가된 이미지 가져오기
             List<Uri> recentImages = getRecentImages();
             for (Uri imageUri : recentImages) {
-                Log.d(TAG, "이미지 처리 중: " + imageUri);
+                String originalFileName = getFileNameFromUri(imageUri);
+
+                if (originalFileName == null) {
+                    Log.e(TAG, "파일 이름을 가져오지 못했습니다.");
+                    continue;
+                }
+
+                // antideepfake 폴더에 동일한 이름의 파일이 있는지 확인하여 이미 변환된 경우 건너뛰기
+                if (isImageAlreadyTransformed(originalFileName)) {
+                    Log.d(TAG, "이미 변환된 이미지입니다: " + originalFileName);
+                    continue;
+                }
 
                 // 이미지 로드
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), imageUri);
-
-                // Exif 정보를 통해 이미지의 회전 각도 얻기
-                int rotation = getImageRotation(imageUri);
-                Bitmap rotatedBitmap = rotateBitmap(bitmap, rotation);
-
+//                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), imageUri);
+                Bitmap bitmap = ImageUtils.loadBitmapAndCorrectOrientation(getApplicationContext(), imageUri);
                 // 흑백 변환 적용
-                Bitmap transformedBitmap = applyTransformation(rotatedBitmap);
+                Bitmap transformedBitmap = applyTransformation(bitmap);
 
-                // 변환된 이미지를 갤러리에 저장
-                saveImageToGallery(transformedBitmap);
-                Log.d(TAG, "이미지를 변환하여 갤러리에 저장 완료: " + imageUri.toString());
+                // 변환된 이미지를 antideepfake 폴더에 저장
+                saveImageToGallery(transformedBitmap, originalFileName);
+                Log.d(TAG, "이미지를 변환하여 갤러리에 저장 완료: " + originalFileName);
             }
             return Result.success();
         } catch (Exception e) {
@@ -63,26 +71,22 @@ public class PhotoTransformationWorker extends Worker {
         }
     }
 
-    // 최근 15분 이내에 갤러리에 추가된 이미지 목록을 가져오는 메서드
+    // MediaStore에서 최근에 추가된 이미지들 중 antideepfake 폴더를 제외한 목록을 가져오는 메서드
     private List<Uri> getRecentImages() {
         List<Uri> imageUris = new ArrayList<>();
-        long fifteenMinutesAgo = System.currentTimeMillis() - (15 * 60 * 1000);
-
-        // MediaStore에서 15분 이내에 추가된 이미지들만 쿼리
         Uri collection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-        String[] projection = new String[]{MediaStore.Images.Media._ID};
-        String selection = MediaStore.Images.Media.DATE_ADDED + ">= ?";
-        String[] selectionArgs = new String[]{String.valueOf(fifteenMinutesAgo / 1000)}; // DATE_ADDED는 초 단위
+
+        String selection = MediaStore.Images.Media.RELATIVE_PATH + " NOT LIKE ?";
+        String[] selectionArgs = new String[]{"%" + TARGET_FOLDER + "%"}; // antideepfake 폴더 제외
 
         Cursor cursor = getApplicationContext().getContentResolver().query(
                 collection,
-                projection,
+                new String[]{MediaStore.Images.Media._ID},
                 selection,
                 selectionArgs,
                 null
         );
 
-        // 쿼리 결과에서 이미지 ID를 통해 URI 리스트 생성
         if (cursor != null) {
             int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
             while (cursor.moveToNext()) {
@@ -97,38 +101,37 @@ public class PhotoTransformationWorker extends Worker {
         return imageUris;
     }
 
-    // Exif 정보를 통해 이미지의 회전 각도 가져오는 메서드
-    private int getImageRotation(Uri imageUri) {
-        try {
-            ExifInterface exif = new ExifInterface(getApplicationContext().getContentResolver().openInputStream(imageUri));
-            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-            switch (orientation) {
-                case ExifInterface.ORIENTATION_ROTATE_90:
-                    return 90;
-                case ExifInterface.ORIENTATION_ROTATE_180:
-                    return 180;
-                case ExifInterface.ORIENTATION_ROTATE_270:
-                    return 270;
-                default:
-                    return 0;
+    // URI에서 파일 이름을 가져오는 메서드
+    private String getFileNameFromUri(Uri uri) {
+        Cursor cursor = getApplicationContext().getContentResolver().query(uri, null, null, null, null);
+        if (cursor != null) {
+            int nameIndex = cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME);
+            if (cursor.moveToFirst()) {
+                String fileName = cursor.getString(nameIndex);
+                cursor.close();
+                return fileName;
             }
-        } catch (IOException e) {
-            Log.e(TAG, "Exif 데이터 읽기 중 오류 발생", e);
-            return 0;
+            cursor.close();
         }
+        return null;
     }
 
-    // 비트맵을 지정된 각도로 회전시키는 메서드
-    private Bitmap rotateBitmap(Bitmap bitmap, int rotationAngle) {
-        if (rotationAngle == 0) {
-            return bitmap; // 회전이 필요 없는 경우 원본 반환
+    // antideepfake 폴더에 동일한 파일 이름이 존재하는지 확인
+    private boolean isImageAlreadyTransformed(String fileName) {
+        File targetDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "antideepfake");
+        File[] files = targetDir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.getName().equals(fileName)) {
+                    return true;
+                }
+            }
         }
-        Matrix matrix = new Matrix();
-        matrix.postRotate(rotationAngle);
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        return false;
     }
 
-    // 흑백 변환을 적용하는 메서드
+    // 흑백 변환 메서드
+    //TODO 모델 호출 코드로 변경
     private Bitmap applyTransformation(Bitmap original) {
         Log.d(TAG, "흑백 변환 적용 중");
         Bitmap grayscaleBitmap = Bitmap.createBitmap(original.getWidth(), original.getHeight(), Bitmap.Config.ARGB_8888);
@@ -142,27 +145,26 @@ public class PhotoTransformationWorker extends Worker {
         return grayscaleBitmap;
     }
 
-    // 변환된 이미지를 antideepfake 폴더에 저장하는 메서드
-    private void saveImageToGallery(Bitmap bitmap) {
-        Log.d(TAG, "변환된 이미지를 갤러리에 저장 중");
+    // 변환된 이미지를 antideepfake 폴더에 저장
+    private void saveImageToGallery(Bitmap bitmap, String originalFileName) {
+        Log.d(TAG, "saveImageToGallery() 호출됨");
+
         ContentValues values = new ContentValues();
-        values.put(MediaStore.Images.Media.DISPLAY_NAME, "antideepfake_" + System.currentTimeMillis() + ".jpg");
+        values.put(MediaStore.Images.Media.DISPLAY_NAME, originalFileName);
         values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
-        values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/antideepfake");
+        values.put(MediaStore.Images.Media.RELATIVE_PATH, TARGET_FOLDER);
 
-        ContentResolver resolver = getApplicationContext().getContentResolver();
-        Uri uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        Uri uri = getApplicationContext().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
 
-        // 갤러리에 변환된 이미지 저장
-        if (uri != null) {
-            try (OutputStream out = resolver.openOutputStream(uri)) {
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-                Log.d(TAG, "antideepfake 폴더에 이미지 저장 완료");
-            } catch (IOException e) {
-                Log.e(TAG, "이미지 저장 중 오류 발생", e);
+        try {
+            if (uri != null) {
+                try (OutputStream out = getApplicationContext().getContentResolver().openOutputStream(uri)) {
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                    Log.d(TAG, "이미지가 antideepfake 폴더에 저장되었습니다.");
+                }
             }
-        } else {
-            Log.e(TAG, "이미지 저장을 위한 미디어 스토어 항목 생성 실패");
+        } catch (IOException e) {
+            Log.e(TAG, "이미지 저장 중 오류 발생", e);
         }
     }
 }
