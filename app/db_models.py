@@ -1,6 +1,6 @@
 from sqlalchemy import Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import mapped_column, relationship
-from .database import Base
+from app.config.database import Base
 from datetime import datetime
 
 class DeployedModel(Base):
