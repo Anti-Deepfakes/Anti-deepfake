@@ -1,9 +1,9 @@
 pipeline {
     agent any
 
-    environment {
-        COMPOSE_DIR = '/home/ubuntu/dpg/compose/fastapi-detect'
-    }
+//     environment {
+//         COMPOSE_DIR = '/home/ubuntu/dpg/compose/fastapi-detect'
+//     }
 
     stages {
         stage('Build Docker Image for FastAPI') {
@@ -28,12 +28,9 @@ pipeline {
         stage('Deploy FastAPI with Docker Compose') {
             steps {
                 script {
-                    dir("${COMPOSE_DIR}") {
+                    dir('"'$./app') {
                         sh 'pwd'
                         sh 'ls'
-                        sh 'ls ..'
-                        sh 'cp ../docker-compose.yml ${COMPOSE_DIR}'
-
                         sh 'docker-compose build --no-cache'
                         sh 'docker-compose up -d'
                     }
