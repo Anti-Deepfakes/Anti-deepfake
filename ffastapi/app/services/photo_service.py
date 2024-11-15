@@ -9,7 +9,7 @@ import os
 from insightface.app import FaceAnalysis
 from app.models.preprocessing import PreprocessingEntity
 from sqlalchemy.orm import Session
-
+import shutil
 
 
 class PhotoService:
@@ -27,20 +27,6 @@ class PhotoService:
             # Deepfake 확률 계산
             deepfake_probability = PhotoService.photo_detection(file)
 
-            # # 확률이 유효할 때만 DB에 저장
-            # if deepfake_probability != -1:
-            #     with SessionLocal() as db:
-            #         feedback = Feedback(
-            #             probability=1 if deepfake_probability >= 50 else 0,
-            #             user_label=2,
-            #             user_predict=2
-            #         )
-            #         db.add(feedback)
-            #         db.commit()
-            #         db.refresh(feedback)
-
-            #         result["deepfakeProbability"] = deepfake_probability
-            #         result["feedbackId"] = feedback.id
 
             return result
         except Exception as e:
@@ -124,23 +110,90 @@ class PhotoService:
         np.savez(os.path.join(directory, f"{file_name}.npz"), image_normalized=image_normalized, weight_map=weight_map, 
                  bbox=np.array(bbox, dtype=np.float32), landmarks=np.array(landmarks, dtype=np.float32) if len(landmarks) > 0 else np.zeros((68, 3), dtype=np.float32))
 
-        # 이미지도 동일한 이름으로 저장
-        cv2.imwrite(os.path.join(directory, f"{file_name}.jpg"), image_resized)
 
         print(f"Saved {file_name}.npz and {file_name}.jpg")
         print("end saving")
         print("start Database Save")
         npz_url = os.path.join(directory, f"{file_name}.npz")
         create_preprocessing(db, npz_url,True,None)
+        if file_name>=9:
+            do_trigger(db)
+            pass
+            
+        
         # 반환값으로 파일명 또는 성공 메시지를 반환
         return {"message": "Preprocessing successful", "filename": f"{file_name}.npz"}
+# 디렉토리 버전 관리 함수
+def get_next_version(directory: str):
+    """디렉토리에서 다음 버전 번호를 찾는 함수"""
+    version_files = [f for f in os.listdir(directory) if f.startswith("ver")]
+    if not version_files:
+        return "ver000"  # 첫 번째 버전
+    # 가장 큰 버전 번호를 찾아서 1 증가
+    version_numbers = [int(f[3:]) for f in version_files]
+    next_version = max(version_numbers) + 1
+    return f"ver{next_version:03d}"  # ver001, ver002, ...
+
+# 파일을 지정된 디렉토리로 이동하는 함수
+def move_file(source_path: str, target_dir: str, ver_name: str):
+    """파일을 target 디렉토리의 지정된 버전 디렉토리로 이동"""
+    if not os.path.exists(target_dir):
+        os.makedirs(target_dir)  # 디렉토리 없으면 생성
     
+    # 타겟 디렉토리 안에 해당 버전 폴더 생성
+    target_version_dir = os.path.join(target_dir, ver_name)
+    if not os.path.exists(target_version_dir):
+        os.makedirs(target_version_dir)
+    
+    # 파일을 버전 디렉토리로 이동
+    target_path = os.path.join(target_version_dir, os.path.basename(source_path))
+    shutil.move(source_path, target_path)
+    
+    # 이동 후 새로운 경로를 반환
+    return target_path   
+def do_trigger(db: Session):
+    # is_tmp가 True인 데이터만 조회
+    # 1. is_tmp가 True인 데이터 가져오기
+    results = db.query(PreprocessingEntity).filter(PreprocessingEntity.is_tmp == True).all()
+
+    if len(results) < 10:
+        raise Exception("Not enough files to process")
+
+    # 2. 파일들을 이동하고, DB에서 is_tmp를 False로 업데이트
+    tmp_dir = "/home/ubuntu/data/disrupt/tmp/"
+    train_dir = "/home/ubuntu/data/disrupt/train/"
+    test_dir = "/home/ubuntu/data/disrupt/test/"
+    
+    for idx, result in enumerate(results):
+        # 3. 파일 경로와 버전 이름 결정
+        file_path = os.path.join(tmp_dir, result.npz_url)
+        
+        if idx < 8:  # train 디렉토리로 이동
+            target_dir = train_dir
+        else:  # test 디렉토리로 이동
+            target_dir = test_dir
+        
+        # 버전 이름 결정 (해당 디렉토리의 최신 버전 찾기)
+        ver_name = get_next_version(target_dir)
+        
+        # 4. 파일 이동 및 새 경로 반환
+        new_file_path = move_file(file_path, target_dir, ver_name)
+
+        # 5. DB에서 is_tmp를 False로 업데이트 및 npz_url 업데이트
+        result.is_tmp = False
+        result.npz_url = os.path.relpath(new_file_path, '/home/ubuntu/data/disrupt/')
+        result.now_ver = int(ver_name[3:])
+        db.commit()
+
+    return {"message": "Files moved and database updated successfully"}
+
 
 def add_weight_to_bbox(weight_map, bbox):
     x_min, y_min, x_max, y_max = bbox
     y_min, y_max, x_min, x_max = np.round([y_min, y_max, x_min, x_max]).astype(int)
     weight_map[y_min:y_max, x_min:x_max] = 1.0  # bbox에 가중치 1 부여
     return weight_map
+
 
 def add_weight_to_landmarks(weight_map, landmarks):
     if len(landmarks) > 0:
