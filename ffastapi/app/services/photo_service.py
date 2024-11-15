@@ -20,7 +20,6 @@ class PhotoService:
             return result
 
         try:
-
             # Deepfake 확률 계산
             deepfake_probability = PhotoService.photo_detection(file)
 
