@@ -36,14 +36,14 @@ pipeline {
         }
     }
 
-    post {
-        always {
-            echo 'Cleaning up...'
-            script {
-                sh 'docker stop fastapi-detect || true'
-                sh 'docker rm fastapi-detect || true'
-                sh 'docker rmi fastapi-detect:latest || true'
-            }
-        }
-    }
+//     post {
+//         always {
+//             echo 'Cleaning up...'
+//             script {
+//                 sh 'docker stop fastapi-detect || true'
+//                 sh 'docker rm fastapi-detect || true'
+//                 sh 'docker rmi fastapi-detect:latest || true'
+//             }
+//         }
+//     }
 }
