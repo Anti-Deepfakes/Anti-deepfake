@@ -15,7 +15,6 @@ pipeline {
 //                             sh 'docker rmi fastapi-detect:latest || true'
                         sh 'pwd'
                         sh 'ls -al'
-                        sh 'mkdir -p ${COMPOSE_DIR}'
 
                         sh 'cp docker-compose.yml ${COMPOSE_DIR}/docker-compose.yml'
 
