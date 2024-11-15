@@ -1,8 +1,6 @@
 package com.antideepfake.android.ui.dashboard;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,36 +10,43 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.io.File;
+import com.antideepfake.android.R;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+
 import java.util.List;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHolder> {
 
     private final Context context;
-    private final List<File> imageFiles;
+    private final List<Uri> imageUris;
 
-    public ImageAdapter(Context context, List<File> imageFiles) {
+    public ImageAdapter(Context context, List<Uri> imageUris) {
         this.context = context;
-        this.imageFiles = imageFiles;
+        this.imageUris = imageUris;
     }
 
     @NonNull
     @Override
     public ImageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(android.R.layout.simple_list_item_1, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.item_image, parent, false);
         return new ImageViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ImageViewHolder holder, int position) {
-        File imageFile = imageFiles.get(position);
-        Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
-        holder.imageView.setImageBitmap(bitmap);
+        Uri imageUri = imageUris.get(position);
+        Glide.with(context)
+                .load(imageUri)
+                .override(300, 300) // 크기 조정
+                .diskCacheStrategy(DiskCacheStrategy.ALL) // 캐싱 활성화
+                .centerCrop()
+                .into(holder.imageView);
     }
 
     @Override
     public int getItemCount() {
-        return imageFiles.size();
+        return imageUris.size();
     }
 
     static class ImageViewHolder extends RecyclerView.ViewHolder {
@@ -49,8 +54,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
         public ImageViewHolder(@NonNull View itemView) {
             super(itemView);
-            imageView = new ImageView(itemView.getContext());
-            ((ViewGroup) itemView).addView(imageView);
+            imageView = itemView.findViewById(R.id.imageView);
         }
     }
 }

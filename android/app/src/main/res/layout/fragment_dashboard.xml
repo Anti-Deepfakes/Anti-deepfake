@@ -13,12 +13,12 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <TextView
-            android:id="@+id/textDashboard"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Gallery Images"
-            android:textSize="18sp"/>
+<!--        <TextView-->
+<!--            android:id="@+id/textDashboard"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Gallery Images"-->
+<!--            android:textSize="18sp"/>-->
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
