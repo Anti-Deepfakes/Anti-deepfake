@@ -9,7 +9,6 @@ services:
       - PYTHONPATH=/app
       - CUDA_VISIBLE_DEVICES=5
     volumes:
-      - .:/app
       - /home/ubuntu/model/:/home/ubuntu/model/
     expose:
       - "8000"
