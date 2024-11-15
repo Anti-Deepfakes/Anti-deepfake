@@ -21,7 +21,7 @@ async def startup_event():
     app.state.model_eye, app.state.model_nose, app.state.model_mouth, app.state.final_layer = load_multimodal_models("/home/ubuntu/model/best_model2.pth", device)
     app.state.device = device
 
-app.include_router(image_router, prefix="/predict")
+app.include_router(image_router)
 # app.include_router(trigger_router, prefix="/model")
 
 @app.exception_handler(HTTPException)
