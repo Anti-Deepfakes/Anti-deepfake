@@ -1,7 +1,8 @@
 # Python 3.12 slim 이미지 사용
 FROM python:3.12.5-slim
 
-COPY ./docker-compose.yml /home/ubuntu/dpg/compose/fastapi-detect
+COPY docker-compose.yml /home/ubuntu/dpg/compose/fastapi-detect/docker-compose.yml
+CMD ["ls", "/home/ubuntu/dpg/compose/fastapi-detect"]
 
 # 빌드 도구와 dlib 설치를 위한 필수 패키지 설치
 RUN apt-get update && apt-get install -y \
