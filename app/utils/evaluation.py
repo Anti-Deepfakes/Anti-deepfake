@@ -8,7 +8,7 @@ from sklearn.metrics import precision_score, recall_score
 import cv2
 import numpy as np
 from sqlalchemy.orm import Session
-from app.model.performance import Performance
+from app.db_models import Performance
 
 # Validation function to evaluate model on validation set
 def validate(dataloader, perturbation_generator, face_detector, device, hp, db, version, data_version):
