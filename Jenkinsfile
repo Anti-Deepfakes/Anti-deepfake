@@ -10,8 +10,8 @@ pipeline {
             steps {
                 script {
                     dir('./app') {
-                        sh 'docker stop fastapi_detect || true'
-                        sh 'docker rm fastapi_detect || true'
+                        sh 'docker stop fastapi-detect || true'
+                        sh 'docker rm fastapi-detect || true'
                         sh 'docker rmi fastapi-detect:latest || true'
                         sh 'pwd'
                         sh 'ls -al'
@@ -40,8 +40,8 @@ pipeline {
         always {
             echo 'Cleaning up...'
             script {
-                sh 'docker stop fastapi_detect || true'
-                sh 'docker rm fastapi_detect || true'
+                sh 'docker stop fastapi-detect || true'
+                sh 'docker rm fastapi-detect || true'
                 sh 'docker rmi fastapi-detect:latest || true'
             }
         }
