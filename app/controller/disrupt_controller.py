@@ -1,8 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from app.utils.trainer import execute_training
-from app.utils.evaluation import evaluate_and_save_performance
-from app.utils.mlflow_utils import get_latest_version
 from app.utils.db import get_db
 
 router = APIRouter()
