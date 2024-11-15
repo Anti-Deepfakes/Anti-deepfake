@@ -10,7 +10,7 @@ import torch
 #import pretrainedmodels
 import torch.nn as nn
 import torch.nn.functional as F
-from model.xception import xception, xception_concat
+from app.model.xception import xception, xception_concat
 import math
 import torchvision
 

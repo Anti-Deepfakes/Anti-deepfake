@@ -1,8 +1,8 @@
 import os
 import torch
-from utils.train import train
-from utils.dataloader import create_dataloader
-from utils.hparams import HParam
+from app.utils.train import train
+from app.utils.dataloader import create_dataloader
+from app.utils.hparams import HParam
 
 def execute_training(data_dir: str, data_version: int, config_path: str, checkpoint_path: str, db: Session):
     """

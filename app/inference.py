@@ -4,7 +4,7 @@ from model.U_Net import UNet
 import torch
 from torchvision.transforms import ToPILImage
 import os
-from utils.train import tensor_to_image
+from app.utils.train import tensor_to_image
 
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "3"

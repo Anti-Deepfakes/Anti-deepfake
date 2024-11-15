@@ -12,9 +12,6 @@ RUN apt-get update && apt-get install -y \
 
 RUN pip install --no-cache-dir dlib
 
-# 기본 작업 디렉토리 설정
-WORKDIR /workspace
-
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 

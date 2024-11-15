@@ -6,7 +6,7 @@ from torchvision import transforms
 from model.U_Net import UNet
 import cv2
 from insightface.app import FaceAnalysis
-from utils.evaluation import validate
+from app.utils.evaluation import validate
 import os
 
 

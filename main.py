@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from controller.disrupt_controller import router as disrupt_router
+from app.controller.disrupt_controller import router as disrupt_router
 from app.config.database import Base, engine
 
 app = FastAPI()
