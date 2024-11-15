@@ -24,9 +24,9 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView navView = findViewById(R.id.nav_view);
 
         // "Upload Photo" 아이템에 애니메이션 적용
-//        View uploadItem = navView.findViewById(R.id.navigation_upload);
-//        Animation bounceAnimation = AnimationUtils.loadAnimation(this, R.anim.bounce);
-//        uploadItem.startAnimation(bounceAnimation);
+        View uploadItem = navView.findViewById(R.id.navigation_upload);
+        Animation bounceAnimation = AnimationUtils.loadAnimation(this, R.anim.bounce);
+        uploadItem.startAnimation(bounceAnimation);
 
         // 네비게이션을 구성하고 NavController 설정
         // (기본적으로 NavController 설정을 위한 코드가 추가되어야 함)

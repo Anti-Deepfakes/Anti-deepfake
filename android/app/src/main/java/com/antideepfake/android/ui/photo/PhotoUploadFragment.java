@@ -135,6 +135,7 @@ public class PhotoUploadFragment extends Fragment {
     }
 
     private void onFaceDetectionResult(int result) {
+        // TODO 사람 인식 결과에 따라 로직 추가
         if (result == 1) {
             Log.d("FaceDetection", "사람이 있습니다.");
         } else {
