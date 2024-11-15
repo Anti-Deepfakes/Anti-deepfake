@@ -24,6 +24,11 @@ pipeline {
             steps {
                 script {
                     dir("${COMPOSE_DIR}") {
+                        sh 'pwd'
+                        sh 'ls'
+                        sh 'ls ..'
+                        sh 'cp ../docker-compose.yml ${COMPOSE_DIR}'
+
                         sh 'docker-compose build --no-cache'
                         sh 'docker-compose up -d'
                     }
