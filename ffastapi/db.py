@@ -17,6 +17,7 @@ DB_URL = f'mysql+pymysql://{user}:{passwd}@{host}:{port}/{db}?charset=utf8'
 engine = create_engine(DB_URL, echo=True)
 SessionLocal = sessionmaker(autocommit=False,autoflush=False, bind=engine)
 Base = declarative_base()
+Base.metadata.create_all(bind=engine)
 # DB 세션을 반환하는 의존성 함수
 def get_db():
     db = SessionLocal()
