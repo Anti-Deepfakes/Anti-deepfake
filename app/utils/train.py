@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.optim as optim
 import wandb
 from torchvision import transforms
-from model.U_Net import UNet
+from app.model.U_Net import UNet
 import cv2
 from insightface.app import FaceAnalysis
 from app.utils.evaluation import validate
