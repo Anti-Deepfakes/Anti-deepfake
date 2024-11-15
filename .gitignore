@@ -1,12 +1,3 @@
 data/**
 .idea
 wandb
-pretrained/
-checkpoints/
-__pycache__/
-
-# 모델 및 학습 결과
-*.pth
-*.pt
-
-.env
