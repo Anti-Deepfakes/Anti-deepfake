@@ -4,4 +4,5 @@
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
     <string name="title_upload">Upload Photo</string>
+    <string name="image_desc">얼굴이 포함된 갤러리 이미지</string>
 </resources>
