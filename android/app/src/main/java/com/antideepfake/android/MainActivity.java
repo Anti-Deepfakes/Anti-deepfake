@@ -1,37 +1,38 @@
 package com.antideepfake.android;
 
 import android.os.Bundle;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.antideepfake.android.databinding.ActivityMainBinding;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ActivityMainBinding binding;
-
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-
+        // BottomNavigationView 설정
         BottomNavigationView navView = findViewById(R.id.nav_view);
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications)
-                .build();
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-        NavigationUI.setupWithNavController(binding.navView, navController);
-    }
 
+        // "Upload Photo" 아이템에 애니메이션 적용
+//        View uploadItem = navView.findViewById(R.id.navigation_upload);
+//        Animation bounceAnimation = AnimationUtils.loadAnimation(this, R.anim.bounce);
+//        uploadItem.startAnimation(bounceAnimation);
+
+        // 네비게이션을 구성하고 NavController 설정
+        // (기본적으로 NavController 설정을 위한 코드가 추가되어야 함)
+        // NavHostFragment를 사용하여 네비게이션 그래프 연결
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
+        NavigationUI.setupWithNavController(navView, navController);
+
+    }
 }

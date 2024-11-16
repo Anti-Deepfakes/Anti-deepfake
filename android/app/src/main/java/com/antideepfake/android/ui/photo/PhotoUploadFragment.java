@@ -2,9 +2,11 @@ package com.antideepfake.android.ui.photo;
 
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -19,6 +21,8 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.antideepfake.android.databinding.FragmentUploadBinding;
@@ -87,6 +91,7 @@ public class PhotoUploadFragment extends Fragment {
     }
 
     private void openImagePicker() {
+        Log.d(TAG, "openImagePicker() 호출됨");
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -190,6 +195,90 @@ public class PhotoUploadFragment extends Fragment {
         } catch (IOException e) {
             Log.e(TAG, "이미지 저장 실패", e);
             Toast.makeText(getActivity(), "이미지 저장에 실패했습니다.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // 흑백 변환 메서드 -> TODO 모델 적용
+    private Bitmap convertToGrayScale(Bitmap originalBitmap) {
+        Log.d(TAG, "convertToGrayScale() 호출됨");
+        Bitmap grayscaleBitmap = Bitmap.createBitmap(originalBitmap.getWidth(), originalBitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(grayscaleBitmap);
+        Paint paint = new Paint();
+        ColorMatrix colorMatrix = new ColorMatrix();
+        colorMatrix.setSaturation(0); // 흑백으로 변환
+        ColorMatrixColorFilter filter = new ColorMatrixColorFilter(colorMatrix);
+        paint.setColorFilter(filter);
+        canvas.drawBitmap(originalBitmap, 0, 0, paint);
+        return grayscaleBitmap;
+    }
+
+    private void detectFaces(Bitmap bitmap) {
+        InputImage image = InputImage.fromBitmap(bitmap, 0);
+
+        FaceDetectorOptions options = new FaceDetectorOptions.Builder()
+                .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
+                .build();
+
+        FaceDetector detector = FaceDetection.getClient(options);
+
+        detector.process(image)
+                .addOnSuccessListener(faces -> {
+                    Log.d("FaceDetection", faces.toString());
+                    int result = faces.size() > 0 ? 1 : 0; // 얼굴이 있으면 1, 없으면 0
+                    onFaceDetectionResult(result);
+                })
+                .addOnFailureListener(e -> e.printStackTrace());
+    }
+
+    private void onFaceDetectionResult(int result) {
+        // TODO 사람 인식 결과에 따라 로직 추가
+        if (result == 1) {
+            Log.d("FaceDetection", "사람이 있습니다.");
+        } else {
+            Log.d("FaceDetection", "사람이 없습니다.");
+        }
+    }
+
+    // 흑백 이미지를 갤러리의 antideepfake 폴더에 저장
+    private void saveImageToGallery(Bitmap bitmap) {
+        Log.d(TAG, "saveImageToGallery() 호출됨");
+        String fileName = "gray_image_" + System.currentTimeMillis() + ".jpg";
+
+        // 안드로이드 10 이상에서는 MediaStore 사용하여 이미지 저장
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName);
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+        values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/antideepfake");
+
+        Uri uri = getActivity().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+
+        try {
+            if (uri != null) {
+                try (FileOutputStream out = (FileOutputStream) getActivity().getContentResolver().openOutputStream(uri)) {
+                    Log.d(TAG, "이미지 파일 저장 중...");
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                    out.flush();
+                    Log.d(TAG, "이미지가 갤러리에 저장되었습니다.");
+                    Toast.makeText(getActivity(), "이미지가 갤러리에 저장되었습니다.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        } catch (IOException e) {
+            Log.e(TAG, "이미지 저장 중 오류 발생", e); // 오류 발생 시 로그
+            Toast.makeText(getActivity(), "이미지 저장에 실패했습니다.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // 권한 요청 메서드
+    private void requestPermissions() {
+        Log.d(TAG, "requestPermissions() 호출됨");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) { // Android 14 이상
+            if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_MEDIA_IMAGES}, 100);
+            }
+        } else { // Android 13 이하
+            if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 100);
+            }
         }
     }
 
