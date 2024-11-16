@@ -152,6 +152,7 @@ def train(hp, train_loader, valid_loader, chkpt_path, save_dir, db, version, dat
         data_version=data_version,
     )
 
+    # 중복저장? 일단 보자
     final_model_path = os.path.join(save_dir, f"model_{data_version}.pth")
     torch.save(perturbation_generator.state_dict(), final_model_path)
     print(f"[LOG: train] Final model saved at {final_model_path}.")

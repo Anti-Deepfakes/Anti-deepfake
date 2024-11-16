@@ -7,42 +7,36 @@ import numpy as np
 import torch
 from insightface.app import FaceAnalysis
 
-def create_dataloader(hp, data_dir, data_version):
+def create_dataloader(hp, train_path, test_path, data_dir, data_version):
     """
     데이터 로더 생성 함수
     """
     print(f"[LOG: create_dataloader] Initializing data loader with:")
-    print(f"  - data_dir: {data_dir}")
-    print(f"  - data_version: {data_version}")
-
-    # data_version에 따라 디렉토리 설정
-    versioned_data_dir = os.path.join(data_dir, f"ver_{data_version}")
-    print(f"[LOG: create_dataloader] Versioned data directory: {versioned_data_dir}")
+    print(f"  - train_path: {train_path}")
+    print(f"  - test_path: {test_path}")
 
     # train 및 test 데이터 경로 설정
-    train_set_path = os.path.join(data_dir, f"disrupt/train/ver_{data_version}")
-    test_set_path = os.path.join(data_dir, f"disrupt/test/ver_{data_version}")
-    print(f"[LOG: create_dataloader] Train set path: {train_set_path}")
-    print(f"[LOG: create_dataloader] Test set path: {test_set_path}")
+    print(f"[LOG: create_dataloader] Train set path: {train_path}")
+    print(f"[LOG: create_dataloader] Test set path: {test_path}")
 
     # DB에서 train 및 test 데이터 가져오기
     train_image_paths = [
-        os.path.join(data_dir, row.npz_url)
+        os.path.join(train_path, row.npz_url)
         for row in db.query(PreprocessingEntity)
         .filter_by(now_ver=data_version, is_tmp=False)
-        .filter(PreprocessingEntity.npz_url.startswith(train_set_path))
+        .filter(PreprocessingEntity.npz_url.startswith(train_path))
         .all()
     ]
-    print(f"[LOG: create_dataloader] Loaded {len(train_image_paths)} training paths from DB.")
+    print(f"[LOG: create_dataloader] Loaded {len(train_path)} training paths from DB.")
 
     test_image_paths = [
-        os.path.join(data_dir, row.npz_url)
+        os.path.join(test_path, row.npz_url)
         for row in db.query(PreprocessingEntity)
         .filter_by(now_ver=data_version, is_tmp=False)
-        .filter(PreprocessingEntity.npz_url.startswith(test_set_path))
+        .filter(PreprocessingEntity.npz_url.startswith(test_path))
         .all()
     ]
-    print(f"[LOG: create_dataloader] Loaded {len(test_image_paths)} testing paths from DB.")
+    print(f"[LOG: create_dataloader] Loaded {len(test_path)} testing paths from DB.")
 
     if not train_image_paths:
         raise ValueError(f"[ERROR: create_dataloader] No training data found for version {data_version} in the database.")
