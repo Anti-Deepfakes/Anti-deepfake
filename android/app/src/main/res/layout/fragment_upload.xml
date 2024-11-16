@@ -49,11 +49,11 @@
         app:layout_constraintVertical_bias="0.376" />
 
     <Button
-        android:id="@+id/disruptButton"
+        android:id="@+id/saveButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="노이즈 삽입"
+        android:text="이미지 저장"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.722"

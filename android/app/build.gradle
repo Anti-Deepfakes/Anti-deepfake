@@ -6,13 +6,16 @@ android {
     namespace 'com.antideepfake.android'
     compileSdk 34
 
+    aaptOptions {
+        noCompress "ptl"
+    }
+
     defaultConfig {
         applicationId "com.antideepfake.android"
         minSdk 34
         targetSdk 34
         versionCode 1
         versionName "1.0"
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -33,6 +36,9 @@ android {
 
 dependencies {
 
+    implementation 'org.pytorch:pytorch_android:1.13.1'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.1'
+
     implementation libs.appcompat
     implementation libs.material
     implementation libs.constraintlayout
@@ -49,4 +55,5 @@ dependencies {
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
+
 }
