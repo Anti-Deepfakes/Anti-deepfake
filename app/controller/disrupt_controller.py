@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.utils.trainer import execute_training
 from app.utils.db import get_db
 from pydantic import BaseModel
+import os
 
 router = APIRouter()
 
@@ -42,6 +43,7 @@ async def train_disrupt_model(
     print(f"    - train_path: {train_path}")
     print(f"    - test_path: {test_path}")
     print(f"    - config_path: {config_path}")
+    print(f"[DEBUG] CUDA_VISIBLE_DEVICES in Python: {os.environ.get('CUDA_VISIBLE_DEVICES')}")
 
     try:
         # 학습 실행
