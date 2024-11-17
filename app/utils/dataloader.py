@@ -50,8 +50,10 @@ def create_dataloader(hp, train_path, test_path, data_version, db):
     print("[LOG: create_dataloader] CustomDataset instances created for train and test data.")
 
     # DataLoader 생성
-    train_loader = DataLoader(train_set, batch_size=hp.train.batch_size, shuffle=True, num_workers=8)
-    test_loader = DataLoader(test_set, batch_size=1, shuffle=False, num_workers=1)
+    # train_loader = DataLoader(train_set, batch_size=hp.train.batch_size, shuffle=True, num_workers=8)
+    # test_loader = DataLoader(test_set, batch_size=1, shuffle=False, num_workers=1)
+    train_loader = DataLoader(train_set, batch_size=hp.train.batch_size, shuffle=True, num_workers=0)
+    test_loader = DataLoader(test_set, batch_size=1, shuffle=False, num_workers=0)
     print("[LOG: create_dataloader] DataLoaders created successfully.")
 
     # 추가: train_loader 데이터 확인
