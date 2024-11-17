@@ -69,7 +69,13 @@ def train(hp, train_loader, valid_loader, chkpt_path, save_dir, db, version, dat
     print("[LOG: train] Initializing FaceAnalysis.")
     face_detector = FaceAnalysis(name='buffalo_l')
     print("[LOG: train] Initializing FaceAnalysis2")
-    face_detector.prepare(ctx_id=0, det_size=(hp.data.image_size, hp.data.image_size))
+    print("[LOG: FaceAnalysis] Initializing FaceAnalysis with ctx_id=0.")
+    try:
+        face_detector.prepare(ctx_id=0, det_size=(hp.data.image_size, hp.data.image_size))
+        print("[LOG: FaceAnalysis] FaceAnalysis prepared successfully.")
+    except Exception as e:
+        print(f"[ERROR: FaceAnalysis] Failed during preparation: {e}")
+        raise
     print("[LOG: train] FaceAnalysis initialized successfully.")
 
     print("[LOG: train] Setting up DataParallel for multi-GPU training.")
