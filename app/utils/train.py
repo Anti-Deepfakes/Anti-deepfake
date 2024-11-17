@@ -68,6 +68,7 @@ def train(hp, train_loader, valid_loader, chkpt_path, save_dir, db, version, dat
     
     print("[LOG: train] Initializing FaceAnalysis.")
     face_detector = FaceAnalysis(name='buffalo_l')
+    print("[LOG: train] Initializing FaceAnalysis2")
     face_detector.prepare(ctx_id=0, det_size=(hp.data.image_size, hp.data.image_size))
     print("[LOG: train] FaceAnalysis initialized successfully.")
 
