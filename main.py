@@ -6,6 +6,7 @@ from app.config.database import Base, engine
 import multiprocessing
 import torch
 import os
+import wandb
 
 app = FastAPI()
 
