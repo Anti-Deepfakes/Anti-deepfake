@@ -24,7 +24,7 @@ async def train_disrupt_model(
         train_path = f"/home/ubuntu/data/disrupt/train/{version_str}"
         test_path = f"/home/ubuntu/data/disrupt/test/{version_str}"
 
-    config_path = "../config/config.yaml"
+    config_path = "./config/config.yaml"
 
     # 요청 시작 시 로그
     print(f"[LOG: train_disrupt_model] Received request to trigger training.")
