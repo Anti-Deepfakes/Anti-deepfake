@@ -5,15 +5,22 @@ from app.utils.db import get_db
 
 router = APIRouter()
 
+# 요청 데이터 모델 정의
+class TrainRequest(BaseModel):
+    data_version: int = 0
+    checkpoint_path: str = None
+
 @router.post("/train")
 async def train_disrupt_model(
-    data_version: int = 0,
-    checkpoint_path: str = None,
+    request: TrainRequest,  # 요청 데이터 매핑
     db: Session = Depends(get_db)
 ):
     """
     학습을 트리거하는 엔드포인트.
     """
+
+    data_version = request.data_version
+    checkpoint_path = request.checkpoint_path
 
     # 경로 설정
     if data_version == 0:
