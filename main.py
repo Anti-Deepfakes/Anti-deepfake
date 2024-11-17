@@ -30,7 +30,7 @@ def startup_event():
         raise
 
 # 라우터 추가
-app.include_router(disrupt_router, prefix="/disrupt")
+app.include_router(disrupt_router, prefix="/disrupt-train")
 print("[LOG: app] Router for '/disrupt' added successfully.")
 
 # 글로벌 HTTP 예외 핸들러 추가
