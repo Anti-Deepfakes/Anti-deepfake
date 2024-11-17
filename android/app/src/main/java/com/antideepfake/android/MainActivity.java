@@ -27,6 +27,8 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         sharedPreferencesHelper = new SharedPreferencesHelper(this);
 
+        NavigationUI.setupWithNavController(navView, navController);
+
         boolean isConsentGiven = sharedPreferencesHelper.isConsentGiven();
 
         // 동의 여부에 따라 초기 화면 설정
@@ -56,6 +58,5 @@ public class MainActivity extends AppCompatActivity {
             return NavigationUI.onNavDestinationSelected(item, navController);
         });
 
-        NavigationUI.setupWithNavController(navView, navController);
     }
 }
