@@ -21,6 +21,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.antideepfake.android.R;
 import com.antideepfake.android.databinding.FragmentDashboardBinding;
 
 import java.util.ArrayList;
@@ -28,13 +29,11 @@ import java.util.List;
 
 public class DashboardFragment extends Fragment {
 
-    private static final String TAG = "DashboardFragment"; // Log 태그 설정
+    private static final String TAG = "DashboardFragment";
     private FragmentDashboardBinding binding;
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
-
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentDashboardBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
@@ -43,15 +42,23 @@ public class DashboardFragment extends Fragment {
 
         // RecyclerView 설정
         RecyclerView recyclerView = binding.recyclerView;
-        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3)); // 3열의 GridLayout
-        recyclerView.setHasFixedSize(true); // 크기 고정으로 성능 최적화
+        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
+        recyclerView.setHasFixedSize(true);
 
         // 이미지 파일 목록 가져오기
         List<Uri> imageUris = getImagesFromGallery("antideepfake");
         ImageAdapter adapter = new ImageAdapter(getContext(), imageUris);
         recyclerView.setAdapter(adapter);
 
+        // 이미지 클릭 이벤트 처리
+        adapter.setOnItemClickListener(this::openImageDetails);
+
         return root;
+    }
+
+    private void openImageDetails(Uri imageUri) {
+        ImageDetailsDialogFragment dialogFragment = ImageDetailsDialogFragment.newInstance(imageUri.toString());
+        dialogFragment.show(requireActivity().getSupportFragmentManager(), "ImageDetailsDialog");
     }
 
     private List<Uri> getImagesFromGallery(String folderName) {
@@ -62,13 +69,14 @@ public class DashboardFragment extends Fragment {
         String selection = MediaStore.Images.Media.RELATIVE_PATH + " LIKE ? AND " +
                 MediaStore.Images.Media.MIME_TYPE + " IN ('image/jpeg', 'image/png')";
         String[] selectionArgs = new String[]{"%" + folderName + "%"};
+        String sortOrder = MediaStore.Images.Media.DATE_ADDED + " DESC"; // 최신순 정렬
 
         try (Cursor cursor = contentResolver.query(
                 collection,
                 new String[]{MediaStore.Images.Media._ID},
                 selection,
                 selectionArgs,
-                null
+                sortOrder // 정렬 조건 추가
         )) {
             if (cursor != null) {
                 while (cursor.moveToNext()) {
@@ -85,11 +93,11 @@ public class DashboardFragment extends Fragment {
     }
 
     private void requestPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // Android 13 이상
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.READ_MEDIA_IMAGES}, 100);
             }
-        } else { // Android 12 이하
+        } else {
             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 100);
             }
