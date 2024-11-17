@@ -29,6 +29,20 @@ def startup_event():
         print(f"[ERROR: startup_event] Error occurred during database table creation: {str(e)}")
         raise
 
+    # 멀티프로세싱 설정
+    print("[LOG: setup_multiprocessing] Setting multiprocessing start method.")
+    try:
+        mp.set_start_method("spawn", force=True)
+        print("[LOG: setup_multiprocessing] Multiprocessing start method set to 'spawn'.")
+    except RuntimeError as e:
+        print(f"[ERROR: setup_multiprocessing] {str(e)}")
+
+    # PyTorch 스레드 및 GPU 설정
+    print("[LOG: startup_event] Configuring PyTorch threading and GPU settings.")
+    torch.set_num_threads(16)
+    os.environ["CUDA_VISIBLE_DEVICES"] = "7"
+    print("[LOG: startup_event] PyTorch configured: Threads=16, CUDA_VISIBLE_DEVICES=7")
+
 # 라우터 추가
 app.include_router(disrupt_router, prefix="/disrupt-train")
 print("[LOG: app] Router for '/disrupt' added successfully.")

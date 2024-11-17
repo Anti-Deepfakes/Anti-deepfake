@@ -25,13 +25,13 @@ def execute_training(train_path: str, test_path: str, data_version: int, config_
         print(f"[LOG: execute_training] Checkpoint path set to: {chkpt_path if chkpt_path else 'None'}")
 
         # 멀티 프로세싱 설정
-        print("[LOG: execute_training] Configuring multiprocessing settings.")
-        torch.set_num_threads(16)
-        os.environ["CUDA_VISIBLE_DEVICES"] = "7"
+        # print("[LOG: execute_training] Configuring multiprocessing settings.")
+        # torch.set_num_threads(16)
+        # os.environ["CUDA_VISIBLE_DEVICES"] = "7"
 
-        import multiprocessing
-        multiprocessing.set_start_method('spawn')
-        print("[LOG: execute_training] Multiprocessing configured successfully.")
+        # import multiprocessing
+        # multiprocessing.set_start_method('spawn')
+        # print("[LOG: execute_training] Multiprocessing configured successfully.")
 
         # 데이터 로더 생성
         print("[LOG: execute_training] Creating data loaders.")
