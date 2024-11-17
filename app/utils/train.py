@@ -102,6 +102,11 @@ def train(hp, train_loader, valid_loader, chkpt_path, save_dir, db, version, dat
 
     wandb.watch(perturbation_generator)
 
+    # train loader 확인
+    print(f"[DEBUG] train_loader has {len(train_loader)} batches.")
+    for batch_idx, batch in enumerate(train_loader):
+        print(f"[DEBUG] Batch {batch_idx + 1}: {batch}")
+
     # Training loop
     for epoch in range(init_epoch, hp.train.epochs):
         print(f"[LOG: train] Starting epoch {epoch + 1}/{hp.train.epochs}.")
