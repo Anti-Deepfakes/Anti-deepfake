@@ -63,12 +63,18 @@ def train(hp, train_loader, valid_loader, chkpt_path, save_dir, db, version, dat
     print(f"[LOG: train] Device: {device}")
 
     init_epoch = 0
+    print("[LOG: train] Initializing U-Net model.")
     perturbation_generator = UNet(3).to(device).train()
+    
+    print("[LOG: train] Initializing FaceAnalysis.")
     face_detector = FaceAnalysis(name='buffalo_l')
     face_detector.prepare(ctx_id=0, det_size=(hp.data.image_size, hp.data.image_size))
+    print("[LOG: train] FaceAnalysis initialized successfully.")
 
+    print("[LOG: train] Setting up DataParallel for multi-GPU training.")
     perturbation_generator = nn.DataParallel(perturbation_generator, device_ids=[0, 1, 2])
 
+    print("[LOG: train] Setting up optimizer.")
     optimizer = optim.Adam(perturbation_generator.parameters(), lr=hp.train.lr)
 
     if chkpt_path is not None:
