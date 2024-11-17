@@ -46,6 +46,7 @@ def startup_event():
     torch.set_num_threads(16)
     os.environ["CUDA_VISIBLE_DEVICES"] = "7"
     print("[LOG: startup_event] PyTorch configured: Threads=16, CUDA_VISIBLE_DEVICES=7")
+    print(f"[DEBUG] CUDA_VISIBLE_DEVICES in Python: {os.environ.get('CUDA_VISIBLE_DEVICES')}")
 
     # W&B API 키 가져오기 및 로그인
     print("[LOG: startup_event] Initializing Weights and Biases (W&B).")
