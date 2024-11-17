@@ -101,65 +101,81 @@ def train(hp, train_loader, valid_loader, chkpt_path, save_dir, db, version, dat
 
     wandb.watch(perturbation_generator)
 
+    # Training loop
     for epoch in range(init_epoch, hp.train.epochs):
         print(f"[LOG: train] Starting epoch {epoch + 1}/{hp.train.epochs}.")
-        for real_images, image_weighted, truth_bbox, truth_landmarks in train_loader:
-            real_images = real_images.to(device)
-            image_weighted = image_weighted.to(device)
-            truth_bbox = truth_bbox.to(device)
-            truth_landmarks = truth_landmarks.to(device)
+        for batch_idx, (real_images, image_weighted, truth_bbox, truth_landmarks) in enumerate(train_loader):
+            print(f"[DEBUG: train] Processing batch {batch_idx + 1}.")
+            try:
+                real_images = real_images.to(device)
+                image_weighted = image_weighted.to(device)
+                truth_bbox = truth_bbox.to(device)
+                truth_landmarks = truth_landmarks.to(device)
 
-            perturbations = perturbation_generator(image_weighted)
-            perturbed_images = real_images * perturbations
+                perturbations = perturbation_generator(image_weighted)
+                perturbed_images = real_images * perturbations
 
-            pred_bbox = []
-            pred_landmarks = []
-            for idx, img in enumerate(perturbed_images):
-                num_image = tensor_to_cv2_image(img.clone().detach())
-                try:
-                    train_face = face_detector.get(num_image)
-                    train_face = train_face[0]
-                    pred_bbox.append(torch.tensor(train_face['bbox']).unsqueeze(0).float().to(device))
-                    pred_landmarks.append(torch.tensor(train_face['landmark_3d_68']).unsqueeze(0).float().to(device))
-                except Exception as e:
-                    print(f"[ERROR: train] Face detection failed for image index {idx}: {str(e)}")
-                    pred_bbox.append(torch.zeros([1, 4]).float().to(device))
-                    pred_landmarks.append(torch.zeros([1, 68, 3]).float().to(device))
+                pred_bbox = []
+                pred_landmarks = []
+                for idx, img in enumerate(perturbed_images):
+                    print(f"[DEBUG: train] Processing image {idx + 1} in batch {batch_idx + 1}.")
+                    num_image = tensor_to_cv2_image(img.clone().detach())
+                    try:
+                        train_face = face_detector.get(num_image)
+                        if train_face:
+                            train_face = train_face[0]
+                            pred_bbox.append(torch.tensor(train_face['bbox']).unsqueeze(0).float().to(device))
+                            pred_landmarks.append(torch.tensor(train_face['landmark_3d_68']).unsqueeze(0).float().to(device))
+                            print(f"[DEBUG: train] Face detected for image {idx + 1}.")
+                        else:
+                            print(f"[WARN: train] No face detected for image {idx + 1}.")
+                            pred_bbox.append(torch.zeros([1, 4]).float().to(device))
+                            pred_landmarks.append(torch.zeros([1, 68, 3]).float().to(device))
+                    except Exception as e:
+                        print(f"[ERROR: train] Face detection failed for image {idx + 1}: {e}")
+                        pred_bbox.append(torch.zeros([1, 4]).float().to(device))
+                        pred_landmarks.append(torch.zeros([1, 68, 3]).float().to(device))
 
-            pred_bbox = torch.cat(pred_bbox, dim=0)
-            pred_landmarks = torch.cat(pred_landmarks, dim=0)
+                pred_bbox = torch.cat(pred_bbox, dim=0)
+                pred_landmarks = torch.cat(pred_landmarks, dim=0)
 
-            perturbation_loss = hinge_loss(perturbations, hp.train.epsilon)
-            identity_loss = criterion_identity(perturbed_images, real_images)
-            bbox_loss = iou_loss(pred_bbox, truth_bbox)
-            landmarks_loss = 1.0 / (1.0 + nn.MSELoss()(pred_landmarks, truth_landmarks))
+                perturbation_loss = hinge_loss(perturbations, hp.train.epsilon)
+                identity_loss = criterion_identity(perturbed_images, real_images)
+                bbox_loss = iou_loss(pred_bbox, truth_bbox)
+                landmarks_loss = 1.0 / (1.0 + nn.MSELoss()(pred_landmarks, truth_landmarks))
 
-            total_loss = bbox_loss + landmarks_loss + 0.5 * perturbation_loss + identity_loss
-            optimizer.zero_grad()
-            total_loss.backward()
-            optimizer.step()
+                total_loss = bbox_loss + landmarks_loss + 0.5 * perturbation_loss + identity_loss
+                optimizer.zero_grad()
+                total_loss.backward()
+                optimizer.step()
 
-            print(f"[LOG: train] Epoch {epoch + 1}, Loss: {total_loss.item()}, "
-                  f"BBox Loss: {bbox_loss.item()}, Landmarks Loss: {landmarks_loss.item()}, "
-                  f"Perturbation Loss: {perturbation_loss.item()}, Identity Loss: {identity_loss.item()}")
+                print(f"[LOG: train] Batch {batch_idx + 1}, Loss: {total_loss.item()}, "
+                        f"BBox Loss: {bbox_loss.item()}, Landmarks Loss: {landmarks_loss.item()}, "
+                        f"Perturbation Loss: {perturbation_loss.item()}, Identity Loss: {identity_loss.item()}")
 
-            wandb.log({
-                'epoch': epoch,
-                'loss': total_loss.item(),
-                'bbox_loss': bbox_loss.item(),
-                'landmarks_loss': landmarks_loss.item(),
-                'perturbation_loss': perturbation_loss.item(),
-                'identity_loss': identity_loss.item(),
-            })
+                wandb.log({
+                    'epoch': epoch,
+                    'batch': batch_idx + 1,
+                    'loss': total_loss.item(),
+                    'bbox_loss': bbox_loss.item(),
+                    'landmarks_loss': landmarks_loss.item(),
+                    'perturbation_loss': perturbation_loss.item(),
+                    'identity_loss': identity_loss.item(),
+                })
 
-            checkpoint_path = f"{save_dir}/unet_epoch_{epoch + 1}.pth"
-            torch.save({
-                'epoch': epoch + 1,
-                'model_state_dict': perturbation_generator.state_dict(),
-                'optimizer_state_dict': optimizer.state_dict(),
-                'loss': total_loss.item()
-            }, checkpoint_path)
-            print(f"[LOG: train] Checkpoint saved at {checkpoint_path}.")
+            except Exception as e:
+                print(f"[ERROR: train] Exception in batch {batch_idx + 1}: {e}")
+                raise
+
+        # Save checkpoint
+        checkpoint_path = f"{save_dir}/unet_epoch_{epoch + 1}.pth"
+        torch.save({
+            'epoch': epoch + 1,
+            'model_state_dict': perturbation_generator.state_dict(),
+            'optimizer_state_dict': optimizer.state_dict(),
+            'loss': total_loss.item()
+        }, checkpoint_path)
+        print(f"[LOG: train] Checkpoint saved at {checkpoint_path}.")
 
     validate(
         dataloader=valid_loader,
