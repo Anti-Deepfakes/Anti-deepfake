@@ -4,6 +4,8 @@ from fastapi.responses import JSONResponse
 from app.controller.disrupt_controller import router as disrupt_router
 from app.config.database import Base, engine
 import multiprocessing
+import torch
+import os
 
 app = FastAPI()
 
