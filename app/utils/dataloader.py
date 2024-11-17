@@ -7,7 +7,7 @@ import numpy as np
 import torch
 from insightface.app import FaceAnalysis
 
-def create_dataloader(hp, train_path, test_path, data_version):
+def create_dataloader(hp, train_path, test_path, data_version, db):
     """
     데이터 로더 생성 함수
     """

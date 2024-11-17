@@ -36,7 +36,7 @@ def execute_training(train_path: str, test_path: str, data_version: int, config_
         # 데이터 로더 생성
         print("[LOG: execute_training] Creating data loaders.")
         # train_path, test_path
-        train_loader, test_loader = create_dataloader(hp, train_path, test_path, data_version)
+        train_loader, test_loader = create_dataloader(hp, train_path, test_path, data_version, db)
         print("[LOG: execute_training] Data loaders created successfully.")
 
         # 최신 버전 확인 및 새 버전 설정
