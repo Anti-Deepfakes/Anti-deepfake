@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from app.controller.disrupt_controller import router as disrupt_router
 from app.config.database import Base, engine
+import multiprocessing
 
 app = FastAPI()
 
@@ -32,7 +33,7 @@ def startup_event():
     # 멀티프로세싱 설정
     print("[LOG: setup_multiprocessing] Setting multiprocessing start method.")
     try:
-        mp.set_start_method("spawn", force=True)
+        multiprocessing.set_start_method("spawn", force=True)
         print("[LOG: setup_multiprocessing] Multiprocessing start method set to 'spawn'.")
     except RuntimeError as e:
         print(f"[ERROR: setup_multiprocessing] {str(e)}")
