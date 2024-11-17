@@ -49,7 +49,7 @@ def execute_training(train_path: str, test_path: str, data_version: int, config_
 
         # 체크포인트 경로 설정
         version_str = f"ver{version:03d}"
-        save_dir = os.path.join(base_dir, model_type, "model", f"/{version_str}")
+        save_dir = os.path.join(base_dir, model_type, "model", f"{version_str}")
         os.makedirs(save_dir, exist_ok=True)
         print(f"[LOG: execute_training] Save directory created: {save_dir}")
 
