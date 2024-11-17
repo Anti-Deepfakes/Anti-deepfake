@@ -46,6 +46,15 @@ def startup_event():
     os.environ["CUDA_VISIBLE_DEVICES"] = "7"
     print("[LOG: startup_event] PyTorch configured: Threads=16, CUDA_VISIBLE_DEVICES=7")
 
+    # W&B API 키 가져오기 및 로그인
+    print("[LOG: startup_event] Initializing Weights and Biases (W&B).")
+    wandb_api_key = os.getenv("WANDB_API_KEY")
+    if wandb_api_key:
+        wandb.login(key=wandb_api_key)
+        print("[LOG: startup_event] W&B login successful.")
+    else:
+        raise ValueError("[ERROR] W&B API key not found in environment variables.")
+
 # 라우터 추가
 app.include_router(disrupt_router, prefix="/disrupt-train")
 print("[LOG: app] Router for '/disrupt' added successfully.")
