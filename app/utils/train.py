@@ -107,10 +107,21 @@ def train(hp, train_loader, valid_loader, chkpt_path, save_dir, db, version, dat
         for batch_idx, (real_images, image_weighted, truth_bbox, truth_landmarks) in enumerate(train_loader):
             print(f"[DEBUG: train] Processing batch {batch_idx + 1}.")
             try:
+                # 출력: 데이터의 크기 및 내용 확인
+                print(f"[DEBUG: train] real_images shape: {real_images.shape}, dtype: {real_images.dtype}")
+                print(f"[DEBUG: train] image_weighted shape: {image_weighted.shape}, dtype: {image_weighted.dtype}")
+                print(f"[DEBUG: train] truth_bbox shape: {truth_bbox.shape}, dtype: {truth_bbox.dtype}")
+                print(f"[DEBUG: train] truth_landmarks shape: {truth_landmarks.shape}, dtype: {truth_landmarks.dtype}")
+
                 real_images = real_images.to(device)
                 image_weighted = image_weighted.to(device)
                 truth_bbox = truth_bbox.to(device)
                 truth_landmarks = truth_landmarks.to(device)
+
+                print(f"[DEBUG: train] real_images on {device} shape: {real_images.shape}, dtype: {real_images.dtype}")
+                print(f"[DEBUG: train] image_weighted on {device} shape: {image_weighted.shape}, dtype: {image_weighted.dtype}")
+                print(f"[DEBUG: train] truth_bbox on {device} shape: {truth_bbox.shape}, dtype: {truth_bbox.dtype}")
+                print(f"[DEBUG: train] truth_landmarks on {device} shape: {truth_landmarks.shape}, dtype: {truth_landmarks.dtype}")
 
                 perturbations = perturbation_generator(image_weighted)
                 perturbed_images = real_images * perturbations
