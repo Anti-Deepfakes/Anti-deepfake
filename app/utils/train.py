@@ -85,7 +85,8 @@ def train(hp, train_loader, valid_loader, chkpt_path, save_dir, db, version, dat
     print("[LOG: train] FaceAnalysis initialized successfully.")
 
     print("[LOG: train] Setting up DataParallel for multi-GPU training.")
-    perturbation_generator = nn.DataParallel(perturbation_generator, device_ids=[0, 1, 2])
+    # perturbation_generator = nn.DataParallel(perturbation_generator, device_ids=[0, 1, 2])
+    perturbation_generator = nn.DataParallel(perturbation_generator, device_ids=[0])
 
     print("[LOG: train] Setting up optimizer.")
     optimizer = optim.Adam(perturbation_generator.parameters(), lr=hp.train.lr)
