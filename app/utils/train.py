@@ -8,6 +8,7 @@ import cv2
 from insightface.app import FaceAnalysis
 from app.utils.evaluation import validate
 import os
+import numpy as np
 
 
 def tensor_to_cv2_image(tensor_image):

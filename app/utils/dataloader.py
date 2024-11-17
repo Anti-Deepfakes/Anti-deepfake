@@ -50,20 +50,20 @@ def create_dataloader(hp, train_path, test_path, data_version, db):
     print("[LOG: create_dataloader] CustomDataset instances created for train and test data.")
 
     # DataLoader 생성
-    # train_loader = DataLoader(train_set, batch_size=hp.train.batch_size, shuffle=True, num_workers=8)
-    # test_loader = DataLoader(test_set, batch_size=1, shuffle=False, num_workers=1)
-    train_loader = DataLoader(train_set, batch_size=hp.train.batch_size, shuffle=True, num_workers=0)
-    test_loader = DataLoader(test_set, batch_size=1, shuffle=False, num_workers=0)
+    train_loader = DataLoader(train_set, batch_size=hp.train.batch_size, shuffle=True, num_workers=8)
+    test_loader = DataLoader(test_set, batch_size=1, shuffle=False, num_workers=1)
+    # train_loader = DataLoader(train_set, batch_size=hp.train.batch_size, shuffle=True, num_workers=0)
+    # test_loader = DataLoader(test_set, batch_size=1, shuffle=False, num_workers=0)
     print("[LOG: create_dataloader] DataLoaders created successfully.")
 
     # 추가: train_loader 데이터 확인
-    print("[LOG: create_dataloader] Inspecting train_loader data:")
-    for batch_idx, (image_tensor, image_weighted, bbox_tensor, landmarks_tensor) in enumerate(train_loader):
-        print(f"[LOG: create_dataloader] Batch {batch_idx + 1}:")
-        print(f"  - Image Tensor Shape: {image_tensor.shape}")
-        print(f"  - Image Weighted Shape: {image_weighted.shape}")
-        print(f"  - Bounding Box Tensor: {bbox_tensor}")
-        print(f"  - Landmarks Tensor: {landmarks_tensor}")
+    # print("[LOG: create_dataloader] Inspecting train_loader data:")
+    # for batch_idx, (image_tensor, image_weighted, bbox_tensor, landmarks_tensor) in enumerate(train_loader):
+    #     print(f"[LOG: create_dataloader] Batch {batch_idx + 1}:")
+    #     print(f"  - Image Tensor Shape: {image_tensor.shape}")
+    #     print(f"  - Image Weighted Shape: {image_weighted.shape}")
+    #     print(f"  - Bounding Box Tensor: {bbox_tensor}")
+    #     print(f"  - Landmarks Tensor: {landmarks_tensor}")
 
     return train_loader, test_loader
 
@@ -92,12 +92,16 @@ class CustomDataset(Dataset):
         bbox = input_data["bbox"]
         landmarks = input_data["landmarks"]
 
-        image_tensor = torch.tensor(image_normalized).float().cuda()
-        weight_map_tensor = torch.tensor(weight_map).float().cuda()
+        # image_tensor = torch.tensor(image_normalized).float().cuda()
+        # weight_map_tensor = torch.tensor(weight_map).float().cuda()
+        image_tensor = torch.tensor(image_normalized).float()
+        weight_map_tensor = torch.tensor(weight_map).float()
         image_weighted = image_tensor + torch.stack([weight_map_tensor] * 3)
 
-        bbox_tensor = torch.tensor(bbox).float().cuda()
-        landmarks_tensor = torch.tensor(landmarks).float().cuda()
+        # bbox_tensor = torch.tensor(bbox).float().cuda()
+        # landmarks_tensor = torch.tensor(landmarks).float().cuda()
+        bbox_tensor = torch.tensor(bbox).float()
+        landmarks_tensor = torch.tensor(landmarks).float()
 
         print(f"[LOG: CustomDataset] Successfully loaded and processed data for index {idx}.")
         return image_tensor, image_weighted, bbox_tensor, landmarks_tensor
