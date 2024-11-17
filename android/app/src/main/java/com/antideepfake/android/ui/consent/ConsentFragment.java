@@ -41,7 +41,7 @@ public class ConsentFragment extends Fragment {
                 sharedPreferencesHelper.setConsentGiven(true);
                 Toast.makeText(getActivity(), "동의해주셔서 감사합니다.", Toast.LENGTH_SHORT).show();
                 // Navigation Component를 통해 PhotoUploadFragment로 이동
-                Navigation.findNavController(view).navigate(R.id.navigation_upload);
+                Navigation.findNavController(view).navigate(R.id.action_consent_to_upload);
             } else if (selectedId == R.id.disagreeButton) {
                 Toast.makeText(getActivity(), "동의하지 않으면 서비스를 사용할 수 없습니다.", Toast.LENGTH_SHORT).show();
             }

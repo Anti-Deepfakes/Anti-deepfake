@@ -10,9 +10,8 @@
         android:id="@+id/consentFragment"
         android:name="com.antideepfake.android.ui.consent.ConsentFragment"
         tools:layout="@layout/fragment_consent">
-        <!-- Consent -> PhotoUpload -->
         <action
-            android:id="@+id/navigation_upload"
+            android:id="@+id/action_consent_to_upload"
             app:destination="@id/photoUploadFragment" />
     </fragment>
 
@@ -21,10 +20,12 @@
         android:id="@+id/photoUploadFragment"
         android:name="com.antideepfake.android.ui.photo.PhotoUploadFragment"
         tools:layout="@layout/fragment_upload">
-        <!-- PhotoUpload -> Dashboard -->
         <action
-            android:id="@+id/navigation_dashboard"
+            android:id="@+id/action_upload_to_dashboard"
             app:destination="@id/dashboardFragment" />
+        <action
+            android:id="@+id/action_upload_to_consent"
+            app:destination="@id/consentFragment" />
     </fragment>
 
     <!-- Dashboard Fragment -->
@@ -32,9 +33,11 @@
         android:id="@+id/dashboardFragment"
         android:name="com.antideepfake.android.ui.dashboard.DashboardFragment"
         tools:layout="@layout/fragment_dashboard">
-        <!-- Dashboard -> PhotoUpload -->
         <action
-            android:id="@+id/navigation_upload"
+            android:id="@+id/action_dashboard_to_upload"
             app:destination="@id/photoUploadFragment" />
+        <action
+            android:id="@+id/action_dashboard_to_consent"
+            app:destination="@id/consentFragment" />
     </fragment>
 </navigation>

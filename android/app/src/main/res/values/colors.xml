@@ -7,4 +7,8 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <!-- 하단바 활성화된 아이템 색상 -->
+    <color name="active_color">#393E76</color>
+    <!-- 하단바 비활성화된 아이템 색상 -->
+    <color name="inactive_color">#FF9E9E9E</color>
 </resources>
