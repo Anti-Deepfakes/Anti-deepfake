@@ -6,6 +6,7 @@ import cv2
 import numpy as np
 import torch
 from insightface.app import FaceAnalysis
+from app.db_models import PreprocessingEntity
 
 def create_dataloader(hp, train_path, test_path, data_version, db):
     """
