@@ -6,6 +6,5 @@ router = APIRouter()
 
 @router.post("/generate")
 async def generate_disrupt(request: Request, image: UploadFile = File(...)):
-    # print(request.app.state.model_disrupt)
-    outputs = await generate_disrupt_v1(request.app.state.model_disrupt, image, request.app.state.device)
+    outputs = await generate_disrupt_v1(request.app.state.model_disrupt, image, request.app.state.device, request.app.state.model_face_detector)
     return SuccessResponse.ok(outputs).dict()
