@@ -222,29 +222,29 @@ def train(hp, train_loader, valid_loader, chkpt_path, save_dir, db, version, dat
     mlflow.log_param("optimizer", "Adam")
 
     # Dataset, Version, Description 설정
-    version_name = f"ver{data_version:03d}"
-    mlflow.log_param("Version", version_name)
+    # version_name = f"ver{data_version:03d}"
+    # mlflow.log_param("Version", version_name)
 
-    dataset_name = f"/home/ubunut/data/disrupt/train/{version_name}"
-    mlflow.log_param("Dataset", dataset_name)
+    # dataset_name = f"/home/ubunut/data/disrupt/train/{version_name}"
+    # mlflow.log_param("Dataset", dataset_name)
 
-    if chkpt_path is None:
-        description = f"Training disrupt_train model with dataset version {data_version}"
-    else:
-        description = f"Training disrupt_train model from model ({chkpt_path}) with dataset version {chkpt_path}"
-    mlflow.set_tag("Description", description)
-    print(f"[LOG: execute_training] MLflow description set: {description}")
+    # if chkpt_path is None:
+    #     description = f"Training disrupt_train model with dataset version {data_version}"
+    # else:
+    #     description = f"Training disrupt_train model from model ({chkpt_path}) with dataset version {chkpt_path}"
+    # mlflow.set_tag("Description", description)
+    # print(f"[LOG: execute_training] MLflow description set: {description}")
 
-    # 메타데이터를 JSON 파일로 저장
-    metadata = {
-        "Dataset": dataset_name,
-        "Version": version_name,
-        "Description": description,
-    }
-    metadata_path = "/tmp/run_metadata.json"
-    with open(metadata_path, "w") as f:
-        json.dump(metadata, f, indent=4)
-    mlflow.log_artifact(metadata_path)  # JSON 파일을 Artifacts로 기록
+    # # 메타데이터를 JSON 파일로 저장
+    # metadata = {
+    #     "Dataset": dataset_name,
+    #     "Version": version_name,
+    #     "Description": description,
+    # }
+    # metadata_path = "/tmp/run_metadata.json"
+    # with open(metadata_path, "w") as f:
+    #     json.dump(metadata, f, indent=4)
+    # mlflow.log_artifact(metadata_path)  # JSON 파일을 Artifacts로 기록
 
     print("[LOG: train] log parameter")
 
