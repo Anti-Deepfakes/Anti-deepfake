@@ -10,7 +10,7 @@ from insightface.app import FaceAnalysis
 from app.models.preprocessing import PreprocessingEntity
 from sqlalchemy.orm import Session
 import shutil
-
+import requests
 
 class PhotoService:
     @staticmethod
@@ -186,11 +186,27 @@ def do_trigger(db: Session):
 
             # DB에서 is_tmp를 False로 업데이트 및 npz_url 업데이트
             result.is_tmp = False
-            result.npz_url = os.path.relpath(new_file_path, '/home/ubuntu/data/disrupt/')
+            result.npz_url = new_file_path
             result.now_ver = int(ver_name[3:])
             db.commit()
-
+    
+    
     return {"message": "Files moved and database updated successfully"}
+
+def send_post_request(ver):
+    url = "http://disrupt-train:8000/disrupt-train/train"  # API 엔드포인트 주소
+    payload = {
+        "data_version": ver  # 보내려는 JSON 데이터
+    }
+
+    try:
+        response = requests.post(url, json=payload)
+        response.raise_for_status()  # 요청이 성공하지 않으면 예외 발생
+        print(f"Response: {response.json()}")
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error: {e}")
+        return {"error": str(e)}
 
 def add_weight_to_bbox(weight_map, bbox):
     x_min, y_min, x_max, y_max = bbox
