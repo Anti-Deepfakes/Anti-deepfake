@@ -31,6 +31,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -122,7 +123,11 @@ public class PhotoUploadFragment extends Fragment {
             return;
         }
 
-        OkHttpClient client = new OkHttpClient();
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(120, TimeUnit.SECONDS) // 연결 타임아웃 120초
+                .readTimeout(120, TimeUnit.SECONDS)    // 읽기 타임아웃 120초
+                .writeTimeout(120, TimeUnit.SECONDS)   // 쓰기 타임아웃 120초
+                .build();
 
         RequestBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
