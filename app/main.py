@@ -49,5 +49,27 @@ async def http_exception_handler(request: Request, exc: HTTPException):
     )
 
 @app.get("/disrupt")
-def read_root():
-    return {"Hello": "World"}
+async def read_root(version: str = None):
+    """
+    특정 버전의 disrupt 모델로 교체하는 엔드포인트.
+    """
+    if version:
+        # 버전 값으로 폴더와 파일 이름 구성
+        version_folder = f"ver{int(version):03d}"  # 예: "ver007", "ver011"
+        model_filename = f"model_{version}.pth"  # 예: "model_7.pth", "model_11.pth"
+        model_base_path = "/var/train/model"
+        new_model_path = os.path.join(model_base_path, version_folder, model_filename)
+
+        if not os.path.exists(new_model_path):
+            raise HTTPException(status_code=404, detail=f"Model version {version} not found at path {new_model_path}")
+
+        try:
+            # 모델 로드 및 교체
+            app.state.model_disrupt = DisruptModel(new_model_path, device).get_disrupt_model()
+            return {"message": f"Disrupt model has been updated to version {version}"}
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to load model version {version}: {str(e)}")
+
+    return {"message": "Disrupt model is running with the current version"}
+
+
