@@ -9,6 +9,7 @@ from insightface.app import FaceAnalysis
 from app.utils.evaluation import validate
 import os
 import numpy as np
+import mlflow
 
 
 def tensor_to_cv2_image(tensor_image):
