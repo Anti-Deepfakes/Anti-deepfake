@@ -189,7 +189,7 @@ def do_trigger(db: Session):
             result.npz_url = new_file_path
             result.now_ver = int(ver_name[3:])
             db.commit()
-    
+    send_post_request(int(train_ver_name[3:]) )
     
     return {"message": "Files moved and database updated successfully"}
 
