@@ -216,6 +216,6 @@ def train(hp, train_loader, valid_loader, chkpt_path, save_dir, db, version, dat
 
     mlflow.pytorch.log_model(
         pytorch_model=perturbation_generator,
-        artifact_path="/mlflow/model"
+        artifact_path="models"
     )
     print("[LOG: train] Model logged to MLflow.")
