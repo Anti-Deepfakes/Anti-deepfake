@@ -214,8 +214,23 @@ def train(hp, train_loader, valid_loader, chkpt_path, save_dir, db, version, dat
     torch.save(perturbation_generator.state_dict(), final_model_path)
     print(f"[LOG: train] Final model saved at {final_model_path}.")
 
+    mlflow.log_param("learning_rate", hp.train.lr)
+    mlflow.log_param("batch_size", hp.train.batch_size)
+    mlflow.log_param("epochs", hp.train.epochs)
+    mlflow.log_param("optimizer", "Adam")
+
+    print("[LOG: train] log parameter")
+
     mlflow.pytorch.log_model(
         pytorch_model=perturbation_generator,
         artifact_path="models"
     )
+
+    print("[LOG: train] log metric")
+
+    mlflow.log_metric("batch_loss", total_loss.item(), step=batch_idx)
+    mlflow.log_metric("batch_bbox_loss", bbox_loss.item(), step=batch_idx)
+    mlflow.log_metric("batch_landmarks_loss", landmarks_loss.item(), step=batch_idx)
+    mlflow.log_metric("batch_perturbation_loss", perturbation_loss.item(), step=batch_idx)
+    mlflow.log_metric("batch_identity_loss", identity_loss.item(), step=batch_idx)
     print("[LOG: train] Model logged to MLflow.")
