@@ -5,7 +5,7 @@ data:
 train:
   batch_size: 16
   num_workers: 8
-  epochs: 100
+  epochs: 50
   optimizer: "Adam"
   lr: 0.001
   epsilon: 1.0
