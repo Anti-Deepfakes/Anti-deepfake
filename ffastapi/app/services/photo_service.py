@@ -195,11 +195,13 @@ def do_trigger(db: Session):
 
 def send_post_request(ver):
     url = "http://disrupt-train:8000/disrupt-train/train"  # API 엔드포인트 주소
+
     payload = {
         "data_version": ver  # 보내려는 JSON 데이터
     }
 
     try:
+        print("DO POST !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11")
         response = requests.post(url, json=payload)
         response.raise_for_status()  # 요청이 성공하지 않으면 예외 발생
         print(f"Response: {response.json()}")
