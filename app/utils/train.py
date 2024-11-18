@@ -111,7 +111,7 @@ def train(hp, train_loader, valid_loader, chkpt_path, save_dir, db, version, dat
     # Training loop
     for epoch in range(init_epoch, hp.train.epochs):
         print(f"[LOG: train] Starting epoch {epoch + 1}/{hp.train.epochs}.")
-        if epoch == hp.train.epochs: 
+        if (epoch+1) == hp.train.epochs: 
             print("escape from epoch")
             break
         for batch_idx, (real_images, image_weighted, truth_bbox, truth_landmarks) in enumerate(train_loader):
