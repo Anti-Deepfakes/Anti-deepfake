@@ -17,127 +17,149 @@
         android:text="데이터 수집 및 이용 동의서"
         android:textSize="20sp"
         android:textStyle="bold"
+        android:textColor="#393E76"
         app:layout_constraintBottom_toTopOf="@+id/scrollView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="NotSibling" />
 
     <!-- 동의 내용 -->
-    <ScrollView
-        android:id="@+id/scrollView"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/consentCardView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginBottom="16dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="@android:color/white"
+        app:cardPreventCornerOverlap="true"
+        app:cardUseCompatPadding="true"
+        android:strokeColor="#000000"
+        android:strokeWidth="2.0"
         app:layout_constraintTop_toBottomOf="@id/titleTextView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/consentRadioGroup">
 
-        <LinearLayout
+        <ScrollView
+            android:id="@+id/scrollView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="match_parent"
+            android:padding="16dp">
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:lineSpacingExtra="4dp"
-                android:text="안티딥페이크는 사용자의 사진 데이터를 AI 모델 학습에 활용하여 보다 정확하고 개인화된 서비스를 제공하기 위해 데이터 수집 및 이용 동의를 요청드립니다.\n\n"
-                android:textStyle="bold" />
+                android:orientation="vertical">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:lineSpacingExtra="4dp"
-                android:text="1. 수집하는 데이터 항목\n"
-                android:textStyle="bold" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:lineSpacingExtra="4dp"
+                    android:text="안팁페이크는 사용자의 사진 데이터를 AI 모델 학습에 활용하여 보다 정확하고 개인화된 서비스를 제공하기 위해 데이터 수집 및 이용 동의를 요청드립니다.\n\n"
+                    android:textStyle="bold" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:lineSpacingExtra="4dp"
-                android:text="- 사용자가 업로드한 사진\n- 업로드 시점의 기기 정보 (운영체제, 해상도 등)\n- 비식별화된 메타데이터\n\n" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:lineSpacingExtra="4dp"
+                    android:text="1. 수집하는 데이터 항목\n"
+                    android:textStyle="bold" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:lineSpacingExtra="4dp"
-                android:text="2. 데이터 사용 목적\n"
-                android:textStyle="bold" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:lineSpacingExtra="4dp"
+                    android:text="- 사용자가 업로드한 사진\n- 업로드 시점의 기기 정보 (운영체제, 해상도 등)\n- 비식별화된 메타데이터\n\n" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:lineSpacingExtra="4dp"
-                android:text="- AI 모델 학습 및 성능 향상\n- 사용자의 얼굴 비식별화 기술 향상\n- 악용 사례 방지를 위한 AI 시스템 개선\n\n" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:lineSpacingExtra="4dp"
+                    android:text="2. 데이터 사용 목적\n"
+                    android:textStyle="bold" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:lineSpacingExtra="4dp"
-                android:text="3. 데이터 보관 및 관리\n"
-                android:textStyle="bold" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:lineSpacingExtra="4dp"
+                    android:text="- AI 모델 학습 및 성능 향상\n- 사용자의 얼굴 비식별화 기술 향상\n- 악용 사례 방지를 위한 AI 시스템 개선\n\n" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:lineSpacingExtra="4dp"
-                android:text="- 수집된 데이터는 암호화되어 안전하게 저장됩니다.\n- 데이터는 최대 3년 동안 보관되며, 이후 폐기됩니다.\n- 사용자는 언제든지 데이터 삭제를 요청할 권리가 있습니다.\n\n" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:lineSpacingExtra="4dp"
+                    android:text="3. 데이터 보관 및 관리\n"
+                    android:textStyle="bold" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:lineSpacingExtra="4dp"
-                android:text="4. 사용자의 권리\n"
-                android:textStyle="bold" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:lineSpacingExtra="4dp"
+                    android:text="- 수집된 데이터는 암호화되어 안전하게 저장됩니다.\n- 데이터는 최대 3년 동안 보관되며, 이후 폐기됩니다.\n- 사용자는 언제든지 데이터 삭제를 요청할 권리가 있습니다.\n\n" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:lineSpacingExtra="4dp"
-                android:text="- 데이터 수집 및 이용에 대한 동의를 거부할 수 있습니다.\n- 동의를 거부하더라도 기본 서비스 이용에는 제한이 없습니다.\n- 단, AI 모델 학습을 통한 개인화 서비스는 제한될 수 있습니다.\n\n" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:lineSpacingExtra="4dp"
+                    android:text="4. 사용자의 권리\n"
+                    android:textStyle="bold" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:lineSpacingExtra="4dp"
-                android:text="동의 여부를 선택하고, 제출 버튼을 눌러 진행해 주세요.\n"
-                android:textStyle="italic" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:lineSpacingExtra="4dp"
+                    android:text="- 데이터 수집 및 이용에 대한 동의를 거부할 수 있습니다.\n- 동의를 거부하더라도 기본 서비스 이용에는 제한이 없습니다.\n- 단, AI 모델 학습을 통한 개인화 서비스는 제한될 수 있습니다.\n\n" />
 
-        </LinearLayout>
-    </ScrollView>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:lineSpacingExtra="4dp"
+                    android:text="동의 여부를 선택하고, 제출 버튼을 눌러 진행해 주세요.\n"
+                    android:textStyle="italic" />
+
+            </LinearLayout>
+        </ScrollView>
+    </androidx.cardview.widget.CardView>
 
     <!-- 동의 여부 선택 -->
     <RadioGroup
         android:id="@+id/consentRadioGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
+        android:layout_marginBottom="20dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@id/submitButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.171"
+        app:layout_constraintStart_toStartOf="parent">
 
         <RadioButton
             android:id="@+id/agreeButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:buttonTint="#393E76"
+            android:gravity="start|center_vertical"
             android:text="예, 동의합니다." />
 
         <RadioButton
             android:id="@+id/disagreeButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:gravity="start|center_vertical"
             android:text="아니요, 동의하지 않습니다." />
     </RadioGroup>
 
