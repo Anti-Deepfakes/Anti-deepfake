@@ -213,24 +213,24 @@ def train(hp, train_loader, valid_loader, chkpt_path, save_dir, db, version, dat
         data_version=data_version,
     )
 
-    # # 현재 배포중인 서버 모델 성능평가
-    # cur_model_performance = cur_model_validate(
-    #     dataloader=valid_loader, 
-    #     face_detector=face_detector,
-    #     device=device,
-    #     hp=hp,
-    #     db=db,
-    #     version=version,
-    #     data_version=data_version
-    # )
+    # 현재 배포중인 서버 모델 성능평가
+    cur_model_performance = cur_model_validate(
+        dataloader=valid_loader, 
+        face_detector=face_detector,
+        device=device,
+        hp=hp,
+        db=db,
+        version=version,
+        data_version=data_version
+    )
 
-    # # 성능 비교
-    # if new_model_performance["total_loss"] < cur_model_performance["total_loss"]:
-    #     print("[LOG: train] New model outperforms the current model. Triggering deployment.")
-    #     # 배포 트리거 로직 추가
-    #     trigger_deployment(db, version):
-    # else:
-    #     print("[LOG: train] Current model performs better. Skipping deployment.")
+    # 성능 비교
+    if new_model_performance["total_loss"] < cur_model_performance["total_loss"]:
+        print("[LOG: train] New model outperforms the current model. Triggering deployment.")
+        # 배포 트리거 로직 추가
+        trigger_deployment(db, version):
+    else:
+        print("[LOG: train] Current model performs better. Skipping deployment.")
     
 
     # 중복저장? 일단 보자
