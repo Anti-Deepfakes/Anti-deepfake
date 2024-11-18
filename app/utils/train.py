@@ -214,6 +214,8 @@ def train(hp, train_loader, valid_loader, chkpt_path, save_dir, db, version, dat
     torch.save(perturbation_generator.state_dict(), final_model_path)
     print(f"[LOG: train] Final model saved at {final_model_path}.")
 
+    mlflow.log_param("dataset", "disrupt_train_dataset")
+
     mlflow.log_param("learning_rate", hp.train.lr)
     mlflow.log_param("batch_size", hp.train.batch_size)
     mlflow.log_param("epochs", hp.train.epochs)

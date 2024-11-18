@@ -60,8 +60,19 @@ def execute_training(train_path: str, test_path: str, data_version: int, config_
         # MLflow 초기화
         print("[LOG: execute_training] Initializing MLflow.")
         init_mlflow(experiment_name=f"{model_type}_experiment")
-        mlflow_run = start_mlflow_run(run_name=f"{model_type}_train")
+        mlflow_run = start_mlflow_run(run_name=f"{model_type}_train_{version_str}")
         print("[LOG: execute_training] MLflow initialized successfully.")
+
+        # mlflow version, dataset 정보 추가
+        mlflow.log_param("version", data_version)
+        mlflow.log_param("dataset", f"disrupt_train_dataset_path = {train_path}")
+
+        # Description 설정
+        if checkpoint_path is None:
+            description = f"Training disrupt_train model with dataset version {data_version}"
+        else:
+            description = f"Training disrupt_train model from model ({checkpoint_path}) with dataset version {data_version}"
+        mlflow.set_tag("description", description)
 
         # 학습 시작
         print("[LOG: execute_training] Starting training process.")
