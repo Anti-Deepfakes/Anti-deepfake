@@ -46,7 +46,7 @@ def execute_training(train_path: str, test_path: str, data_version: int, config_
         model_type = "disrupt"
         print("[LOG: execute_training] Determining the latest version.")
         # version = get_latest_version(1) + 1
-        version = data_version + 1 # 일단 이렇게
+        version = data_version # 일단 이렇게
         print(f"[LOG: execute_training] New version set to: {version}")
 
         # 체크포인트 경로 설정
