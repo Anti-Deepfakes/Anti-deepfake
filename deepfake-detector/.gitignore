@@ -1,0 +1,5 @@
+data/**
+.idea
+wandb
+**.pth
+__pycache__
