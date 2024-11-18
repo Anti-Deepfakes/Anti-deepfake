@@ -14,14 +14,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.antideepfake.android.R;
 import com.antideepfake.android.databinding.FragmentDashboardBinding;
 
 import java.util.ArrayList;
@@ -32,33 +32,63 @@ public class DashboardFragment extends Fragment {
     private static final String TAG = "DashboardFragment";
     private FragmentDashboardBinding binding;
 
+    // 권한 요청 런처
+    private final ActivityResultLauncher<String> permissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    Log.d(TAG, "갤러리 접근 권한 허용됨");
+                    loadImages(); // 권한 허용 시 이미지 로드
+                } else {
+                    Log.d(TAG, "갤러리 접근 권한 거부됨");
+                }
+            });
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentDashboardBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
+        return binding.getRoot();
+    }
 
-        // 권한 요청
-        requestPermissions();
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        // RecyclerView 설정
-        RecyclerView recyclerView = binding.recyclerView;
-        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
-        recyclerView.setHasFixedSize(true);
+        setupRecyclerView();
+        checkAndRequestPermissions(); // 권한 확인 및 요청
+    }
 
-        // 이미지 파일 목록 가져오기
+    private void setupRecyclerView() {
+        binding.recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
+        binding.recyclerView.setHasFixedSize(true);
+    }
+
+    private void checkAndRequestPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_MEDIA_IMAGES)
+                    == PackageManager.PERMISSION_GRANTED) {
+                loadImages(); // 권한이 이미 허용된 경우
+            } else {
+                permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES); // 권한 요청
+            }
+        } else {
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                loadImages(); // 권한이 이미 허용된 경우
+            } else {
+                permissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE); // 권한 요청
+            }
+        }
+    }
+
+    private void loadImages() {
         List<Uri> imageUris = getImagesFromGallery("antideepfake");
         ImageAdapter adapter = new ImageAdapter(getContext(), imageUris);
-        recyclerView.setAdapter(adapter);
+        binding.recyclerView.setAdapter(adapter);
 
         // 이미지 클릭 이벤트 처리
         adapter.setOnItemClickListener(this::openImageDetails);
 
-        return root;
-    }
-
-    private void openImageDetails(Uri imageUri) {
-        ImageDetailsDialogFragment dialogFragment = ImageDetailsDialogFragment.newInstance(imageUri.toString());
-        dialogFragment.show(requireActivity().getSupportFragmentManager(), "ImageDetailsDialog");
+        Log.d(TAG, "이미지 로드 완료, 갤러리 이미지 개수: " + imageUris.size());
     }
 
     private List<Uri> getImagesFromGallery(String folderName) {
@@ -92,16 +122,9 @@ public class DashboardFragment extends Fragment {
         return imageUris;
     }
 
-    private void requestPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.READ_MEDIA_IMAGES}, 100);
-            }
-        } else {
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 100);
-            }
-        }
+    private void openImageDetails(Uri imageUri) {
+        ImageDetailsDialogFragment dialogFragment = ImageDetailsDialogFragment.newInstance(imageUri.toString());
+        dialogFragment.show(requireActivity().getSupportFragmentManager(), "ImageDetailsDialog");
     }
 
     @Override
