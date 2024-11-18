@@ -1,0 +1,6 @@
+data/**
+.idea
+wandb
+pretrained/
+checkpoints/
+__pycache__/
