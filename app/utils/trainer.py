@@ -59,8 +59,10 @@ def execute_training(train_path: str, test_path: str, data_version: int, config_
 
         # MLflow 초기화
         print("[LOG: execute_training] Initializing MLflow.")
-        init_mlflow(experiment_name=f"{model_type}_experiment")
-        mlflow_run = start_mlflow_run(run_name=f"{model_type}_train_{version_str}")
+        # init_mlflow(experiment_name=f"{model_type}_experiment")
+        init_mlflow(experiment_name=f"detect_experiment")
+        # mlflow_run = start_mlflow_run(run_name=f"{model_type}_train_{version_str}")
+        mlflow_run = start_mlflow_run(run_name=f"detect_train_{version_str}")
         print("[LOG: execute_training] MLflow initialized successfully.")
 
         # 학습 시작

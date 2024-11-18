@@ -24,7 +24,6 @@ def start_mlflow_run(run_name: str = None):
     print(f"[LOG: start_mlflow_run] Started MLflow run with ID: {run.info.run_id}")
     return run
 
-
 def log_model_with_version(model, model_name: str, base_dir: str, model_type: str, params: dict = None, metrics: dict = None):
     """
     모델 및 메타데이터를 MLflow와 디렉토리 버전 관리 방식으로 저장.

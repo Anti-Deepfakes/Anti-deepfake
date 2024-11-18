@@ -10,6 +10,9 @@ from app.utils.evaluation import validate
 import os
 import numpy as np
 import mlflow
+import requests
+from datetime import datetime
+from app.db_models import DeployedModel
 
 
 def tensor_to_cv2_image(tensor_image):
@@ -111,7 +114,7 @@ def train(hp, train_loader, valid_loader, chkpt_path, save_dir, db, version, dat
     # Training loop
     for epoch in range(init_epoch, hp.train.epochs):
         print(f"[LOG: train] Starting epoch {epoch + 1}/{hp.train.epochs}.")
-        if (epoch+1) == hp.train.epochs: 
+        if (epoch+1) == hp.train.epochs:
             print("escape from epoch")
             break
         for batch_idx, (real_images, image_weighted, truth_bbox, truth_landmarks) in enumerate(train_loader):
@@ -198,7 +201,8 @@ def train(hp, train_loader, valid_loader, chkpt_path, save_dir, db, version, dat
         }, checkpoint_path)
         print(f"[LOG: train] Checkpoint saved at {checkpoint_path}.")
 
-    validate(
+    # 학습한 모델 성능평가
+    new_model_performance = validate(
         dataloader=valid_loader,
         perturbation_generator=perturbation_generator,
         face_detector=face_detector,
@@ -208,6 +212,26 @@ def train(hp, train_loader, valid_loader, chkpt_path, save_dir, db, version, dat
         version=version,
         data_version=data_version,
     )
+
+    # # 현재 배포중인 서버 모델 성능평가
+    # cur_model_performance = cur_model_validate(
+    #     dataloader=valid_loader, 
+    #     face_detector=face_detector,
+    #     device=device,
+    #     hp=hp,
+    #     db=db,
+    #     version=version,
+    #     data_version=data_version
+    # )
+
+    # # 성능 비교
+    # if new_model_performance["total_loss"] < cur_model_performance["total_loss"]:
+    #     print("[LOG: train] New model outperforms the current model. Triggering deployment.")
+    #     # 배포 트리거 로직 추가
+    #     trigger_deployment(db, version):
+    # else:
+    #     print("[LOG: train] Current model performs better. Skipping deployment.")
+    
 
     # 중복저장? 일단 보자
     final_model_path = os.path.join(save_dir, f"model_{data_version}.pth")
@@ -220,31 +244,6 @@ def train(hp, train_loader, valid_loader, chkpt_path, save_dir, db, version, dat
     mlflow.log_param("batch_size", hp.train.batch_size)
     mlflow.log_param("epochs", hp.train.epochs)
     mlflow.log_param("optimizer", "Adam")
-
-    # Dataset, Version, Description 설정
-    # version_name = f"ver{data_version:03d}"
-    # mlflow.log_param("Version", version_name)
-
-    # dataset_name = f"/home/ubunut/data/disrupt/train/{version_name}"
-    # mlflow.log_param("Dataset", dataset_name)
-
-    # if chkpt_path is None:
-    #     description = f"Training disrupt_train model with dataset version {data_version}"
-    # else:
-    #     description = f"Training disrupt_train model from model ({chkpt_path}) with dataset version {chkpt_path}"
-    # mlflow.set_tag("Description", description)
-    # print(f"[LOG: execute_training] MLflow description set: {description}")
-
-    # # 메타데이터를 JSON 파일로 저장
-    # metadata = {
-    #     "Dataset": dataset_name,
-    #     "Version": version_name,
-    #     "Description": description,
-    # }
-    # metadata_path = "/tmp/run_metadata.json"
-    # with open(metadata_path, "w") as f:
-    #     json.dump(metadata, f, indent=4)
-    # mlflow.log_artifact(metadata_path)  # JSON 파일을 Artifacts로 기록
 
     print("[LOG: train] log parameter")
 
@@ -261,3 +260,128 @@ def train(hp, train_loader, valid_loader, chkpt_path, save_dir, db, version, dat
     mlflow.log_metric("batch_perturbation_loss", perturbation_loss.item(), step=batch_idx)
     mlflow.log_metric("batch_identity_loss", identity_loss.item(), step=batch_idx)
     print("[LOG: train] Model logged to MLflow.")
+
+def cur_model_validate(dataloader, face_detector, device, hp, db, version, data_version):
+    """
+    저장된 모델을 불러와 validate를 진행하는 함수.
+
+    Args:
+        dataloader (DataLoader): 검증 데이터 로더
+        face_detector: 얼굴 탐지 모델
+        device (torch.device): 실행할 장치
+        hp (HParam): 하이퍼파라미터 객체
+        db (Session): 데이터베이스 세션
+        version (int): 모델 버전
+        data_version (int): 데이터 버전
+
+    Returns:
+        dict: 검증 결과 (평가 메트릭)
+    """
+
+    # DeployedModel 테이블에서 model_type이 1인 모델의 최신 version 가져오기
+    try:
+        deployed_model = db.query(DeployedModel).filter(DeployedModel.model_type == 1).order_by(DeployedModel.version.desc()).first()
+        if not deployed_model:
+            print("[WARN: evaluate_model] No deployed model found for model_type=1. Setting default low total_loss.")
+            return {"total_loss": float('inf')}  # 매우 큰 값으로 설정하여 새 모델이 항상 선택되도록 함
+
+        version = deployed_model.version
+        print(f"[LOG: evaluate_model] Retrieved version {version} for deployed model (model_type=1).")
+    except Exception as e:
+        print(f"[ERROR: evaluate_model] Failed to fetch deployed model version: {str(e)}")
+        raise
+
+    # checkpoint_path 생성
+    version_str = f"ver{version:03d}"
+    checkpoint_path = f"/home/ubuntu/data/disrupt/model/{version_str}/model_{version}.pth"
+    print(f"[LOG: evaluate_model] Checkpoint path constructed: {checkpoint_path}")
+
+    # 모델 불러오기
+    model = load_model(checkpoint_path, model_class, device)
+    print("[LOG: evaluate_model] Model loaded. Starting validation...")
+
+    # validate 함수 호출
+    validation_results = validate(
+        dataloader=dataloader,
+        perturbation_generator=model,
+        face_detector=face_detector,
+        device=device,
+        hp=hp,
+        db=db,
+        version=version,
+        data_version=data_version
+    )
+
+    print("[LOG: evaluate_model] Validation completed successfully.")
+    return validation_results
+
+
+def load_model(checkpoint_path, device):
+    """
+    저장된 모델을 불러오는 함수.
+
+    Args:
+        checkpoint_path (str): 체크포인트 파일 경로
+        device (torch.device): 모델을 로드할 장치
+
+    Returns:
+        nn.Module: 로드된 모델
+    """
+
+    model_class = Unet
+
+    print(f"[LOG: load_model] Loading model from checkpoint: {checkpoint_path}")
+    model = model_class(3).to(device)  # UNet 모델 (입력 채널 3)
+    checkpoint = torch.load(checkpoint_path, map_location=device)
+    model.load_state_dict(checkpoint['model_state_dict'])
+    print("[LOG: load_model] Model loaded successfully.")
+    return model
+
+
+def trigger_deployment(db, version):
+    """
+    배포 트리거 로직.
+    
+    Args:
+        db (Session): 데이터베이스 세션.
+        version (int): 새로 배포할 모델 버전.
+    """
+    print(f"[LOG: trigger_deployment] Triggering deployment for version {version}.")
+
+    try:
+        # DeployedModel 테이블에서 model_type이 1인 레코드 조회
+        deployed_model = db.query(DeployedModel).filter(DeployedModel.model_type == 1).first()
+
+        if deployed_model:
+            # 기존 레코드 업데이트
+            print(f"[LOG: trigger_deployment] Updating existing deployed model record for version {version}.")
+            deployed_model.version = version
+            deployed_model.deployment_time = datetime.utcnow()
+        else:
+            # 새 레코드 생성
+            print(f"[LOG: trigger_deployment] Creating new deployed model record for version {version}.")
+            deployed_model = DeployedModel(
+                model_type=1,
+                version=version,
+                deployment_time=datetime.utcnow()
+            )
+            db.add(deployed_model)
+
+        # DB 커밋
+        db.commit()
+        print("[LOG: trigger_deployment] Deployment record saved successfully.")
+
+        # HTTP 요청으로 disrupt-server에 트리거 전달
+        server_url = f"http://disrupt-server:8000/disrupt?version={version}"
+        print(f"[LOG: trigger_deployment] Sending deployment request to {server_url}.")
+
+        response = requests.get(server_url)
+        if response.status_code == 200:
+            print(f"[LOG: trigger_deployment] Deployment request succeeded: {response.text}")
+        else:
+            print(f"[ERROR: trigger_deployment] Deployment request failed with status code {response.status_code}: {response.text}")
+
+    except Exception as e:
+        print(f"[ERROR: trigger_deployment] Failed to trigger deployment: {str(e)}")
+        db.rollback()  # 트랜잭션 롤백
+        raise

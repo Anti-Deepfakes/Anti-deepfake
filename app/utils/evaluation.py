@@ -98,6 +98,14 @@ def validate(dataloader, perturbation_generator, face_detector, device, hp, db, 
     )
     print("[LOG: validate] Validation process completed successfully.")
 
+    return {
+        "bbox_loss": all_bbox_loss,
+        "landmarks_loss": all_landmarks_loss,
+        "perturbation_loss": all_perturbation_loss,
+        "identity_loss": all_identity_loss,
+        "total_loss": all_total_loss
+    }
+
 def iou_loss(pred_boxes, true_boxes):
     print("[LOG: iou_loss] Calculating IoU loss.")
     inter_area = torch.max(torch.min(pred_boxes[..., 2], true_boxes[..., 2]) - torch.max(pred_boxes[..., 0], true_boxes[..., 0]), torch.tensor(0.0))
