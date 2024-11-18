@@ -51,21 +51,32 @@ public class PhotoUploadFragment extends Fragment {
     private Bitmap transformedBitmap; // 서버에서 변환된 이미지를 저장할 Bitmap
     private String originalFileName; // 선택한 이미지의 원본 파일 이름
 
+    private final ActivityResultLauncher<String> requestPermissionLauncher = registerForActivityResult(
+            new ActivityResultContracts.RequestPermission(),
+            isGranted -> {
+                if (isGranted) {
+                    openImagePicker();
+                } else {
+                    Toast.makeText(requireContext(), "갤러리 접근 권한이 필요합니다.", Toast.LENGTH_SHORT).show();
+                }
+            }
+    );
+
     private final ActivityResultLauncher<Intent> pickImageLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
-                if (result.getResultCode() == getActivity().RESULT_OK && result.getData() != null) {
+                if (result.getResultCode() == requireActivity().RESULT_OK && result.getData() != null) {
                     Uri imageUri = result.getData().getData();
                     try {
                         // 이미지 이름 가져오기
                         originalFileName = getFileNameFromUri(imageUri);
 
                         // 이미지 로드 및 서버 업로드
-                        Bitmap bitmap = ImageUtils.loadBitmapAndCorrectOrientation(getActivity(), imageUri);
+                        Bitmap bitmap = ImageUtils.loadBitmapAndCorrectOrientation(requireActivity(), imageUri);
                         uploadImageToServer(bitmap);
                     } catch (IOException e) {
                         Log.e(TAG, "이미지 불러오기 실패", e);
-                        Toast.makeText(getActivity(), "이미지 불러오기 실패", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireActivity(), "이미지 불러오기 실패", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -82,16 +93,28 @@ public class PhotoUploadFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // 이미지 업로드 버튼 클릭 이벤트
-        binding.uploadButton.setOnClickListener(v -> openImagePicker());
+        binding.uploadButton.setOnClickListener(v -> checkAndRequestGalleryPermission());
 
         // 이미지 저장 버튼 클릭 이벤트
         binding.saveButton.setOnClickListener(v -> {
             if (transformedBitmap != null) {
                 saveImageToGallery(transformedBitmap, originalFileName);
             } else {
-                Toast.makeText(getActivity(), "저장할 이미지가 없습니다.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireActivity(), "저장할 이미지가 없습니다.", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void checkAndRequestGalleryPermission() {
+        String permission = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU
+                ? android.Manifest.permission.READ_MEDIA_IMAGES
+                : android.Manifest.permission.READ_EXTERNAL_STORAGE;
+
+        if (requireContext().checkSelfPermission(permission) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            openImagePicker();
+        } else {
+            requestPermissionLauncher.launch(permission);
+        }
     }
 
     private void openImagePicker() {
@@ -116,17 +139,39 @@ public class PhotoUploadFragment extends Fragment {
         return null;
     }
 
+    private Bitmap resizeBitmap(Bitmap bitmap, int maxWidth, int maxHeight) {
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+
+        float aspectRatio = (float) width / height;
+
+        if (width > maxWidth || height > maxHeight) {
+            if (width > height) {
+                width = maxWidth;
+                height = (int) (width / aspectRatio);
+            } else {
+                height = maxHeight;
+                width = (int) (height * aspectRatio);
+            }
+        }
+
+        return Bitmap.createScaledBitmap(bitmap, width, height, true);
+    }
+
     private void uploadImageToServer(Bitmap bitmap) {
-        File tempFile = createTempFile(bitmap);
+        // 사진 크기를 1000 x 1000 이하로 리사이즈
+        Bitmap resizedBitmap = resizeBitmap(bitmap, 1000, 1000);
+
+        File tempFile = createTempFile(resizedBitmap);
         if (tempFile == null) {
-            Toast.makeText(getActivity(), "이미지 파일 생성 실패", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireActivity(), "이미지 파일 생성 실패", Toast.LENGTH_SHORT).show();
             return;
         }
 
         OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(120, TimeUnit.SECONDS) // 연결 타임아웃 120초
-                .readTimeout(120, TimeUnit.SECONDS)    // 읽기 타임아웃 120초
-                .writeTimeout(120, TimeUnit.SECONDS)   // 쓰기 타임아웃 120초
+                .connectTimeout(120, TimeUnit.SECONDS)
+                .readTimeout(120, TimeUnit.SECONDS)
+                .writeTimeout(120, TimeUnit.SECONDS)
                 .build();
 
         RequestBody requestBody = new MultipartBody.Builder()
@@ -140,13 +185,12 @@ public class PhotoUploadFragment extends Fragment {
                 .post(requestBody)
                 .addHeader("Accept", "application/json")
                 .build();
-
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 Log.e(TAG, "이미지 업로드 실패", e);
                 requireActivity().runOnUiThread(() ->
-                        Toast.makeText(getActivity(), "이미지 업로드 실패", Toast.LENGTH_SHORT).show());
+                        Toast.makeText(requireActivity(), "이미지 업로드 실패", Toast.LENGTH_SHORT).show());
             }
 
             @Override
@@ -154,7 +198,7 @@ public class PhotoUploadFragment extends Fragment {
                 if (!response.isSuccessful()) {
                     Log.e(TAG, "서버 응답 에러: " + response.code());
                     requireActivity().runOnUiThread(() ->
-                            Toast.makeText(getActivity(), "서버 에러", Toast.LENGTH_SHORT).show());
+                            Toast.makeText(requireActivity(), "서버 에러", Toast.LENGTH_SHORT).show());
                     return;
                 }
 
@@ -187,17 +231,16 @@ public class PhotoUploadFragment extends Fragment {
 
             requireActivity().runOnUiThread(() -> {
                 binding.imageView.setImageBitmap(transformedBitmap);
-                Toast.makeText(getActivity(), "이미지 변환 성공", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireActivity(), "이미지 변환 성공", Toast.LENGTH_SHORT).show();
             });
         } catch (Exception e) {
             Log.e(TAG, "서버 응답 처리 실패", e);
             requireActivity().runOnUiThread(() ->
-                    Toast.makeText(getActivity(), "서버 응답 처리 실패", Toast.LENGTH_SHORT).show());
+                    Toast.makeText(requireActivity(), "서버 응답 처리 실패", Toast.LENGTH_SHORT).show());
         }
     }
 
     private void saveImageToGallery(Bitmap bitmap, String originalFileName) {
-        // 원본 파일 이름에 "transformed_" 접두어 추가
         String fileName = "transformed_" + originalFileName;
 
         ContentValues values = new ContentValues();
@@ -205,19 +248,19 @@ public class PhotoUploadFragment extends Fragment {
         values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
         values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/antideepfake");
 
-        Uri uri = getActivity().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        Uri uri = requireActivity().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
 
         try {
             if (uri != null) {
-                try (FileOutputStream out = (FileOutputStream) getActivity().getContentResolver().openOutputStream(uri)) {
+                try (FileOutputStream out = (FileOutputStream) requireActivity().getContentResolver().openOutputStream(uri)) {
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
                     out.flush();
-                    Toast.makeText(getActivity(), "이미지가 갤러리에 저장되었습니다: " + fileName, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireActivity(), "이미지가 갤러리에 저장되었습니다: " + fileName, Toast.LENGTH_SHORT).show();
                 }
             }
         } catch (IOException e) {
             Log.e(TAG, "이미지 저장 실패", e);
-            Toast.makeText(getActivity(), "이미지 저장에 실패했습니다.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireActivity(), "이미지 저장에 실패했습니다.", Toast.LENGTH_SHORT).show();
         }
     }
 

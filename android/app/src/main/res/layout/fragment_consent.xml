@@ -159,6 +159,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="start"
+            android:buttonTint="#393E76"
             android:gravity="start|center_vertical"
             android:text="아니요, 동의하지 않습니다." />
     </RadioGroup>

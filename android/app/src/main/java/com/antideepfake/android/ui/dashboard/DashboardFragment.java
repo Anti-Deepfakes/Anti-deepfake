@@ -36,10 +36,7 @@ public class DashboardFragment extends Fragment {
     private final ActivityResultLauncher<String> permissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
-                    Log.d(TAG, "갤러리 접근 권한 허용됨");
                     loadImages(); // 권한 허용 시 이미지 로드
-                } else {
-                    Log.d(TAG, "갤러리 접근 권한 거부됨");
                 }
             });
 
