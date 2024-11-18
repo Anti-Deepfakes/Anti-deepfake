@@ -20,12 +20,20 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
     private final Context context;
     private final List<Uri> imageUris;
+    private OnItemClickListener onItemClickListener;
 
     public ImageAdapter(Context context, List<Uri> imageUris) {
         this.context = context;
         this.imageUris = imageUris;
     }
 
+    public interface OnItemClickListener {
+        void onItemClick(Uri imageUri);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.onItemClickListener = listener;
+    }
     @NonNull
     @Override
     public ImageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -42,7 +50,13 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
                 .diskCacheStrategy(DiskCacheStrategy.ALL) // 캐싱 활성화
                 .centerCrop()
                 .into(holder.imageView);
+        holder.itemView.setOnClickListener(v -> {
+            if (onItemClickListener != null) {
+                onItemClickListener.onItemClick(imageUri);
+            }
+        });
     }
+
 
     @Override
     public int getItemCount() {

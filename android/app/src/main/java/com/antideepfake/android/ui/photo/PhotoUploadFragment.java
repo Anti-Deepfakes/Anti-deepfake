@@ -1,7 +1,9 @@
 package com.antideepfake.android.ui.photo;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -46,6 +48,7 @@ public class PhotoUploadFragment extends Fragment {
 
     private FragmentUploadBinding binding;
     private Bitmap transformedBitmap; // 서버에서 변환된 이미지를 저장할 Bitmap
+    private String originalFileName; // 선택한 이미지의 원본 파일 이름
 
     private final ActivityResultLauncher<Intent> pickImageLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -53,6 +56,10 @@ public class PhotoUploadFragment extends Fragment {
                 if (result.getResultCode() == getActivity().RESULT_OK && result.getData() != null) {
                     Uri imageUri = result.getData().getData();
                     try {
+                        // 이미지 이름 가져오기
+                        originalFileName = getFileNameFromUri(imageUri);
+
+                        // 이미지 로드 및 서버 업로드
                         Bitmap bitmap = ImageUtils.loadBitmapAndCorrectOrientation(getActivity(), imageUri);
                         uploadImageToServer(bitmap);
                     } catch (IOException e) {
@@ -79,7 +86,7 @@ public class PhotoUploadFragment extends Fragment {
         // 이미지 저장 버튼 클릭 이벤트
         binding.saveButton.setOnClickListener(v -> {
             if (transformedBitmap != null) {
-                saveImageToGallery(transformedBitmap);
+                saveImageToGallery(transformedBitmap, originalFileName);
             } else {
                 Toast.makeText(getActivity(), "저장할 이미지가 없습니다.", Toast.LENGTH_SHORT).show();
             }
@@ -91,6 +98,21 @@ public class PhotoUploadFragment extends Fragment {
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
         pickImageLauncher.launch(Intent.createChooser(intent, "이미지를 선택하세요"));
+    }
+
+    private String getFileNameFromUri(Uri uri) {
+        ContentResolver contentResolver = requireActivity().getContentResolver();
+        Cursor cursor = contentResolver.query(uri, null, null, null, null);
+        if (cursor != null) {
+            int nameIndex = cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME);
+            if (cursor.moveToFirst()) {
+                String fileName = cursor.getString(nameIndex);
+                cursor.close();
+                return fileName;
+            }
+            cursor.close();
+        }
+        return null;
     }
 
     private void uploadImageToServer(Bitmap bitmap) {
@@ -169,8 +191,9 @@ public class PhotoUploadFragment extends Fragment {
         }
     }
 
-    private void saveImageToGallery(Bitmap bitmap) {
-        String fileName = "transformed_image_" + System.currentTimeMillis() + ".jpg";
+    private void saveImageToGallery(Bitmap bitmap, String originalFileName) {
+        // 원본 파일 이름에 "transformed_" 접두어 추가
+        String fileName = "transformed_" + originalFileName;
 
         ContentValues values = new ContentValues();
         values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName);
@@ -184,7 +207,7 @@ public class PhotoUploadFragment extends Fragment {
                 try (FileOutputStream out = (FileOutputStream) getActivity().getContentResolver().openOutputStream(uri)) {
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
                     out.flush();
-                    Toast.makeText(getActivity(), "이미지가 갤러리에 저장되었습니다.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "이미지가 갤러리에 저장되었습니다: " + fileName, Toast.LENGTH_SHORT).show();
                 }
             }
         } catch (IOException e) {
