@@ -1,0 +1,6 @@
+data/**
+.idea
+wandb
+**.pth
+__pycache__
+!data/deepfake_dataset.py

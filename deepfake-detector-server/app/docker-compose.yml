@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  fastapi-detect:
+    image: fastapi-detect:latest  # 여기서 이미지 이름을 일치시킵니다.
+    container_name: fastapi-detect
+    restart: always
+    environment:
+      - PYTHONPATH=/app
+      - CUDA_VISIBLE_DEVICES=5
+    volumes:
+      - /home/ubuntu/model/:/home/ubuntu/model/
+    expose:
+      - "8000"
+    networks:
+      - dpg_default
+
+networks:
+  dpg_default:
+    external: true
+    driver: bridge
