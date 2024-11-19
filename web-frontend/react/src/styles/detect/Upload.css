@@ -1,0 +1,82 @@
+/* src/styles/Main.css */
+.main-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.title {
+  margin-bottom: 20px;
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  border-radius: 15px;
+  width: 600px;
+  padding: 20px;
+}
+.title h2 {
+  font-size: 24px;
+}
+
+.upload-container {
+  display: flex;
+  justify-content:space-around;
+  align-items: center;
+  width: 100%;
+}
+
+.upload-box {
+  width: 250px;
+  height: 250px;
+  border: 2px dashed #ccc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  margin-right: 10px;
+}
+
+.upload-box input {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.preview-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 250px; /* 고정된 height */
+  width: auto; /* width는 자동으로 설정 */
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+  margin-left: 10px;
+}
+
+.preview-box img {
+  height: 100%; /* 이미지의 height를 부모 높이에 맞춤 */
+  width: auto; /* 비율을 유지하며 width는 자동 조정 */
+  object-fit: contain; /* 이미지가 잘리지 않고 비율 유지 */
+  border-radius: 10px;
+  margin-bottom: 0px;
+}
+
+.judge-button {
+  background-color: navy;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 20px;
+  font-size: 20px;
+}
+
+.judge-button:hover {
+  background-color: #00509e;
+}

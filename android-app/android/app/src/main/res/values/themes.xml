@@ -1,0 +1,25 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Light Theme -->
+    <style name="Theme.AntiDeepfake" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary colors -->
+        <item name="colorPrimary">#393E76</item>
+        <item name="colorPrimaryVariant">#393D65</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+
+        <!-- Secondary colors -->
+        <item name="colorSecondary">#03DAC6</item>
+        <item name="colorSecondaryVariant">#018786</item>
+        <item name="colorOnSecondary">#000000</item>
+
+        <!-- Background colors -->
+        <item name="android:windowBackground">#FAFAFA</item>
+
+        <!-- Status bar color -->
+        <item name="android:statusBarColor">#FAFAFA</item>
+        <item name="android:windowLightStatusBar">true</item>
+
+        <!-- Custom font -->
+        <item name="android:fontFamily">@font/pretendardbold</item>
+        <item name="fontFamily">@font/pretendardbold</item>
+    </style>
+</resources>

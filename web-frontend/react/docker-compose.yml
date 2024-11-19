@@ -1,0 +1,11 @@
+services:
+  mmmm-react:
+    image: react-image:latest
+    container_name: react
+    environment:
+      TZ: "Asia/Seoul"
+    networks:
+      - dpg_default
+networks:
+  dpg_default:
+    external: true

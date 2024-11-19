@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+firebase-admin
+pydantic
+Pillow
+numpy
+python-multipart
+torch
+opencv-python
+torchvision
+timm

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/photoUploadFragment">
+
+    <!-- Consent Fragment -->
+    <fragment
+        android:id="@+id/consentFragment"
+        android:name="com.antideepfake.android.ui.consent.ConsentFragment"
+        tools:layout="@layout/fragment_consent">
+        <action
+            android:id="@+id/action_consent_to_upload"
+            app:destination="@id/photoUploadFragment" />
+    </fragment>
+
+    <!-- PhotoUpload Fragment -->
+    <fragment
+        android:id="@+id/photoUploadFragment"
+        android:name="com.antideepfake.android.ui.photo.PhotoUploadFragment"
+        tools:layout="@layout/fragment_upload">
+        <action
+            android:id="@+id/action_upload_to_dashboard"
+            app:destination="@id/dashboardFragment" />
+        <action
+            android:id="@+id/action_upload_to_consent"
+            app:destination="@id/consentFragment" />
+    </fragment>
+
+    <!-- Dashboard Fragment -->
+    <fragment
+        android:id="@+id/dashboardFragment"
+        android:name="com.antideepfake.android.ui.dashboard.DashboardFragment"
+        tools:layout="@layout/fragment_dashboard">
+        <action
+            android:id="@+id/action_dashboard_to_upload"
+            app:destination="@id/photoUploadFragment" />
+        <action
+            android:id="@+id/action_dashboard_to_consent"
+            app:destination="@id/consentFragment" />
+    </fragment>
+</navigation>
